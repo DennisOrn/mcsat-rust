@@ -5,13 +5,11 @@ pub mod term {
 
     #[derive(Debug, Hash, Clone, PartialEq, Eq)]
     pub enum ActualTerm {
-        // Var(String, Option<i32>),
-        // Lam(Term),
-        // App(Term, Term),
-
         Constant(i32),
-        Literal(String),
+        Literal(String), //
         Variable(String),
+        // True(),
+        // False(),
 
         LessThan(Term, Term),
         GreaterThan(Term, Term),
@@ -19,9 +17,7 @@ pub mod term {
 
         Conjunction(Term, Term),
         Disjunction(Term, Term),
-        Implication(Term, Term)
-
-        // Assignment(, Term)
+        Negation(Term)
     }
 
     consign! {
@@ -60,8 +56,8 @@ pub mod term {
         FACTORY.mk(ActualTerm::Disjunction(lhs, rhs))
     }
 
-    pub fn implication(lhs: Term, rhs: Term) -> Term {
-        FACTORY.mk(ActualTerm::Implication(lhs, rhs))
+    pub fn negation(term: Term) -> Term {
+        FACTORY.mk(ActualTerm::Negation(term))
     }
 }
 
@@ -78,13 +74,13 @@ impl ::std::fmt::Display for ActualTerm {
             ActualTerm::Equal(lhs, rhs) => write!(fmt, "{} = {}", lhs, rhs),
             ActualTerm::Conjunction(lhs, rhs) => write!(fmt, "({} ∧ {})", lhs, rhs),
             ActualTerm::Disjunction(lhs, rhs) => write!(fmt, "({} ∨ {})", lhs, rhs),
-            ActualTerm::Implication(lhs, rhs) => write!(fmt, "({} → {})", lhs, rhs)
+            ActualTerm::Negation(term) => write!(fmt, "¬{}", term)
         }
     }
 }
 
 #[derive(Clone, Copy, Debug)]
 pub enum Value {
-    Integer(i32),
-    Bool(bool)
+    Bool(bool),
+    Integer(i32)
 }
