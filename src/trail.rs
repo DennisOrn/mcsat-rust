@@ -1,8 +1,9 @@
-use crate::variable::Variable;
+use crate::term::term::Term;
+use crate::term::Value;
 
 #[derive(Debug)]
 pub struct Trail {
-    elements: Vec<Variable>, // TODO: Clause instead?
+    elements: Vec<TrailElement>
 }
 
 impl Trail {
@@ -10,46 +11,18 @@ impl Trail {
         Trail { elements: Vec::new() }
     }
 
-    pub fn push(&mut self, element: Variable) {
+    pub fn push(&mut self, element: TrailElement) {
         self.elements.push(element);
     }
 
-    pub fn pop(&mut self) -> Option<Variable> {
+    pub fn pop(&mut self) -> Option<TrailElement> {
         self.elements.pop()
     }
-
-
-    // fn is_consistent() -> bool {
-    //     unimplemented!("function is not implemented")
-    // }
-
-    // fn is_complete() -> bool {
-    //     unimplemented!("function is not implemented")
-    // }
-
-    // fn is_satisfied() -> bool {
-    //     unimplemented!("function is not implemented")
-    // }
-
-    // fn is_infeasible() -> bool {
-    //     unimplemented!("function is not implemented")
-    // }
-
-    // fn value_b(&self, literal: Literal) -> Option<bool> {
-    //     if self.elements.contains(&literal) {
-    //         return Some(true)
-    //     } else if self.elements.contains(&literal.negate()) {
-    //         return Some(false)
-    //     } else {
-    //         return None
-    //     }
-    // }
 }
 
-// impl fmt::Display for Trail {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         write!(f,
-//             "{}",
-//             self.elements)
-//     }
-// }
+#[derive(Debug)]
+pub enum TrailElement {
+    DecidedLiteral(Term),
+    PropagatedLiteral(Term, Term),
+    ModelAssignment(Term, Value)
+}

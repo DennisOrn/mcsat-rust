@@ -1,74 +1,76 @@
 use std::fmt;
-use crate::clause::Clause;
+use crate::model::Model;
 use crate::state::State;
-use crate::theory::Boolean;
+use crate::term::term::Term;
+use crate::term::term::ActualTerm;
+use crate::term::Value;
 use crate::trail::Trail;
-use crate::variable::Variable;
+use crate::trail::TrailElement;
 
 #[derive(Debug)]
 pub struct Solver {
     state: State,
+    model: Model,
     trail: Trail,
-    clauses: Vec<Clause>,
-    undecided: Vec<i32>,
+    clauses: Vec<Term>,
+    undecided: Vec<Term>,
 }
 
 impl Solver {
-    pub fn new(clauses: Vec<Clause>, undecided: Vec<i32>) -> Solver {
+    pub fn new(clauses: Vec<Term>, undecided: Vec<Term>) -> Solver {
         Solver {
-            state: State::Search,
+            state: State::Consistent,
+            model: Model::new(),
             trail: Trail::new(),
             clauses: clauses,
-            undecided: undecided,
+            undecided: undecided
         }
     }
 
-    pub fn solve(&mut self) -> bool {
+    pub fn run(&mut self) -> bool {
         loop {
             println!("{}", self);
 
-            self.propagate();
-
             match &self.state {
+                State::Consistent => {
+                    if let Some(t) = self.undecided.pop() {
 
-                State::ConflictResolution(_conflict_clause) => {
-                    unimplemented!("Do something cool here")
-                }
-
-                State::Search => {
-                    if let Some(id) = self.undecided.pop() {
-                        self.decide(id)
+                        match t.get() {
+                            ActualTerm::Literal(_) => {
+                                let new_value = Value::Bool(true);
+                                self.model.set_value(t.clone(), new_value);
+                                self.trail.push(TrailElement::DecidedLiteral(t))
+                            }
+                            ActualTerm::Variable(_) => {
+                                let new_value = Value::Integer(999);
+                                self.model.set_value(t.clone(), new_value);
+                                self.trail.push(TrailElement::ModelAssignment(t, new_value))
+                            }
+                            _ => panic!()
+                        }
 
                     } else {
-                        self.state = State::Sat;
                         return true
                     }
-                }
 
-                _ => (),
+                }
+                State::Conflict(conflict) => {
+                    unimplemented!()
+                }
             }
         }
     }
 
-    fn decide(&mut self, id: i32) {
-        let trail_element = Variable::new(id, Boolean::True);
-        self.trail.push(trail_element);
-    }
-
-    fn propagate(&mut self) {
-        return
-    }
-
-    // TODO: check if all clauses are satisifed by the trail
-    // fn satisfied(&self) -> bool {
-    //     self.undecided.is_empty()
+    // fn decide(&mut self, id: i32) {
+    //     let trail_element = Variable::new(id, Boolean::True);
+    //     self.trail.push(trail_element);
     // }
 }
 
 impl fmt::Display for Solver {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f,
-            "SOLVER\nstate:\t\t{:?}\ntrail:\t\t{:?}\nundecided:\t{:?}\n",
-            self.state, self.trail, self.undecided)
+            "SOLVER\nstate:\t\t{:?}\nmodel:\t\t{:?}\ntrail:\t\t{:?}\nundecided:\t{:?}\n",
+            self.state, self.model, self.trail, self.undecided)
     }
 }

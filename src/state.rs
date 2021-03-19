@@ -1,9 +1,7 @@
-use crate::clause::Clause;
+use crate::term::term::Term;
 
 #[derive(Debug)]
 pub enum State {
-    Search,
-    ConflictResolution(Clause),
-    Sat,
-    Unsat,
+    Consistent,
+    Conflict(Term)
 }
