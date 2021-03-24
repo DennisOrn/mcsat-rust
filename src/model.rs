@@ -57,10 +57,19 @@ impl Model {
     }
 
     pub fn set_value(&mut self, t: Term, value: Value) {
+        assert!(self.check_term_value(&t, &value));
         self.map.insert(t, value);
     }
 
     pub fn clear_value(&mut self, t: Term) {
         self.map.remove(&t);
+    }
+
+    fn check_term_value(&self, t: &Term, value: &Value) -> bool {
+        match (t.get(), value) {
+            (ActualTerm::Literal(_), Value::Bool(_)) => true,
+            (ActualTerm::Variable(_), Value::Integer(_)) => true,
+            (_, _) => false
+        }
     }
 }
