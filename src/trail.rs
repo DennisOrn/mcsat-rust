@@ -1,5 +1,5 @@
 use crate::term::term::Term;
-use crate::term::term::ActualTerm;
+// use crate::term::term::ActualTerm;
 use crate::term::Value;
 
 #[derive(Debug)]
@@ -30,20 +30,25 @@ impl Trail {
 
 
     fn check_trail_element(&self, element: &TrailElement) -> bool {
-        match element {
-            TrailElement::DecidedLiteral(term) => {
-                match term.get() {
-                    ActualTerm::Boolean(_) => true,
-                    _ => false
-                }
-            }
-            TrailElement::ModelAssignment(var, val) => {
-                match (var.get(), val) {
-                    (ActualTerm::Variable(_), Value::Integer(_)) => true,
-                    _ => false
-                }
-            }
-            _ => panic!("PropagatedLiteral not implemented!")
-        }
+        // TODO
+        true
+
+
+
+        // match element {
+        //     TrailElement::DecidedLiteral(term) => {
+        //         match term.get() {
+        //             ActualTerm::Boolean(_) => true,
+        //             _ => false
+        //         }
+        //     }
+        //     TrailElement::ModelAssignment(var, val) => {
+        //         match (var.get(), val) {
+        //             (ActualTerm::Variable(_), Value::Integer(_)) => true,
+        //             _ => false
+        //         }
+        //     }
+        //     _ => panic!("PropagatedLiteral not implemented!")
+        // }
     }
 }
