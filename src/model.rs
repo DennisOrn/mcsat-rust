@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use crate::term::term::Term;
 use crate::term::term::ActualTerm;
+use crate::term::term::Formula;
 use crate::term::Value;
 
 #[derive(Debug)]
@@ -13,10 +14,10 @@ impl Model {
         Model { map: HashMap::new() }
     }
 
-    pub fn evaluate(&self, t: &Term) -> Option<bool> {
+    pub fn evaluate(&self, t: &Formula) -> Option<bool> {
         // println!("recursive evaluate: {}", t);
         match t.get() {
-            ActualTerm::Literal(_) => {
+            ActualTerm::Boolean(_) => {
                 if let Some(value) = self.map.get(&t) {
                     if let Value::Bool(b) = value {
                         return Some(*b)
@@ -35,6 +36,12 @@ impl Model {
                 //         }
                 //     }
                 // }
+            }
+            ActualTerm::True() => {
+                Some(true)
+            }
+            ActualTerm::False() => {
+                Some(false)
             }
             ActualTerm::Negation(term) => {
                 match self.evaluate(term) {
@@ -65,9 +72,10 @@ impl Model {
         self.map.remove(&t);
     }
 
+
     fn check_term_value(&self, t: &Term, value: &Value) -> bool {
         match (t.get(), value) {
-            (ActualTerm::Literal(_), Value::Bool(_)) => true,
+            (ActualTerm::Boolean(_), Value::Bool(_)) => true,
             (ActualTerm::Variable(_), Value::Integer(_)) => true,
             (_, _) => false
         }

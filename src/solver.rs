@@ -39,17 +39,17 @@ impl Solver {
                     if let Some(t) = self.undecided.pop() {
 
                         match t.get() {
-                            ActualTerm::Literal(_) => {
+                            ActualTerm::Boolean(_) => {
                                 let new_value = Value::Bool(true);
                                 self.model.set_value(t.clone(), new_value);
                                 self.trail.push(TrailElement::DecidedLiteral(t.clone()));
                                 // assert!(self.model.evaluate(&t.clone()) == Some(true));
                             }
-                            ActualTerm::Variable(_) => {
-                                let new_value = Value::Integer(999);
-                                self.model.set_value(t.clone(), new_value);
-                                self.trail.push(TrailElement::ModelAssignment(t.clone(), new_value))
-                            }
+                            // ActualTerm::Variable(_) => {
+                            //     let new_value = Value::Integer(999);
+                            //     self.model.set_value(t.clone(), new_value);
+                            //     self.trail.push(TrailElement::ModelAssignment(t.clone(), new_value))
+                            // }
                             _ => panic!()
                         }
 

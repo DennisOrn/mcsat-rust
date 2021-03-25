@@ -2,14 +2,15 @@
 pub mod term {
     use hashconsing::*;
     pub type Term = HConsed<ActualTerm>;
+    pub type Formula = Term;
 
     #[derive(Debug, Hash, Clone, PartialEq, Eq)]
     pub enum ActualTerm {
         Constant(i32),
-        Literal(String), //
+        Boolean(String),
         Variable(String),
-        // True(),
-        // False(),
+        True(),
+        False(),
 
         LessThan(Term, Term),
         GreaterThan(Term, Term),
@@ -28,12 +29,20 @@ pub mod term {
         FACTORY.mk(ActualTerm::Constant(value))
     }
 
-    pub fn literal(name: &str) -> Term {
-        FACTORY.mk(ActualTerm::Literal(String::from(name)))
+    pub fn boolean(name: &str) -> Term {
+        FACTORY.mk(ActualTerm::Boolean(String::from(name)))
     }
 
     pub fn variable(name: &str) -> Term {
         FACTORY.mk(ActualTerm::Variable(String::from(name)))
+    }
+
+    pub fn t() -> Term {
+        FACTORY.mk(ActualTerm::True())
+    }
+
+    pub fn f() -> Term {
+        FACTORY.mk(ActualTerm::False())
     }
 
     pub fn less_than(lhs: Term, rhs: Term) -> Term {
@@ -67,8 +76,10 @@ impl ::std::fmt::Display for ActualTerm {
     fn fmt(& self, fmt: & mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         match self {
             ActualTerm::Constant(value) => write!(fmt, "{}", value),
-            ActualTerm::Literal(name) => write!(fmt, "{}", name),
+            ActualTerm::Boolean(name) => write!(fmt, "{}", name),
             ActualTerm::Variable(name) => write!(fmt, "{}", name),
+            ActualTerm::True() => write!(fmt, "true"),
+            ActualTerm::False() => write!(fmt, "false"),
             ActualTerm::LessThan(lhs, rhs) => write!(fmt, "{} < {}", lhs, rhs),
             ActualTerm::GreaterThan(lhs, rhs) => write!(fmt, "{} > {}", lhs, rhs),
             ActualTerm::Equal(lhs, rhs) => write!(fmt, "{} = {}", lhs, rhs),

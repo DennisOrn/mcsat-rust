@@ -15,11 +15,11 @@ fn main() {
     // println!("{}", t1);
     // println!("{}\n", t2);
 
-    let t1 = disjunction(disjunction(literal("x1"), literal("x2")), literal("x3"));
-    let t2 = disjunction(negation(literal("x1")), literal("x2"));
+    let t1 = disjunction(disjunction(boolean("x1"), boolean("x2")), boolean("x3"));
+    let t2 = disjunction(negation(boolean("x1")), disjunction(boolean("x2"), f()));
 
     let terms: Vec<Term> = vec![t1, t2];
-    let undecided: Vec<Term> = vec![literal("x1"), literal("x2"), literal("x3")];
+    let undecided: Vec<Term> = vec![boolean("x1"), boolean("x2"), boolean("x3")];
 
     for term in &terms {
         println!("{}", term)
