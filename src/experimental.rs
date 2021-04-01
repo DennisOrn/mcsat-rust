@@ -1,70 +1,203 @@
-#[macro_use]
-pub mod expression {
-    use hashconsing::*;
-    // pub type Expr = HConsed<dyn Expression>;
+/*
+    Traits: Expression, (Term?), (Formula?)
+    all terms and formulas are structs or enums, don't have a value
+    terms have id
 
+    hashconsing factory for each type:
+    one for constants, one for variables, one for 'and', one for 'or'
+
+    HashMap, key: expression (or term?), value: values
+    one or several hashmaps? one is enough if expressions work as keys probably
+
+    evaluate-function for each term/formula
+    pass reference to hashmap as argument
+    */
+
+#[macro_use]
+pub mod experimental {
+    use hashconsing::*;
     use std::collections::HashMap;
     use std::hash::{Hash, Hasher};
 
+    // pub type
 
-
-    pub trait Expression: CloneExpression + Send + Sync {
-        fn evaluate(&self);
+    pub trait Expression {
+        fn evaluate(&self) -> Option<bool>;
     }
 
-    pub trait CloneExpression {
-        fn clone_expression<'a>(&self) -> Box<dyn Expression>;
-    }
-
-    impl PartialEq for dyn Expression {
-        fn eq(&self, rhs: &Self) -> bool {
-            self == rhs
-        }
-    }
-    impl Eq for dyn Expression {}
-    impl Hash for dyn Expression {
-        fn hash<H>(&self, state: &mut H) where H: Hasher {
-            self.hash(state)
-        }
-    }
-    impl<T> CloneExpression for T where T: Expression + Clone + 'static {
-        fn clone_expression(&self) -> Box<dyn Expression> {
-            Box::new(self.clone())
-        }
-    }
-    impl Clone for Box<dyn Expression> {
-        fn clone(&self) -> Self {
-            self.clone_expression()
-        }
-    }
-
-
-    // pub struct Storage {
-    //     pub expressions: Vec<Box<dyn Expression>>
-    // }
 
     #[derive(Debug, Hash, Clone, PartialEq, Eq)]
-    pub struct Constant {
-        value: i32
+    pub struct Boolean {
+        id: String
     }
-
-    impl Expression for Constant {
-        fn evaluate(&self) {
-            println!("evaluate constant")
+    impl Expression for Boolean {
+        fn evaluate(&self) -> Option<bool> {
+            println!("evaluating: Boolean");
+            None
         }
     }
+    impl Boolean {}
+
+    pub struct Or<'a> {
+        lhs: &'a dyn Expression, // TODO: array of Expressions instead of just 2?
+        rhs: &'a dyn Expression,
+    }
+    impl Expression for Or<'_> {
+        fn evaluate(&self) -> Option<bool> {
+            println!("evaluating: Or");
+            match (self.lhs.evaluate(), self.rhs.evaluate()) { // TODO: perform lazy evaluation here.
+                (Some(true), _) => return Some(true),
+                (_, Some(true)) => return Some(true),
+                (None, _) => return None,
+                (_, None) => return None,
+                (_, _) => return Some(false)
+            }
+        }
+    }
+
+    #[derive(Debug)]
+    pub enum Value {
+        Bool(bool),
+        Integer(i32)
+    }
+
+    // pub struct HashconsFactory {
+    //     boolean_factory: HConsign<Boolean>
+    // }
+    // impl HashconsFactory {
+    //     pub fn new() -> HashconsFactory {
+    //         HashconsFactory {
+    //             boolean_factory: HConsign::empty()
+    //         }
+    //     }
+    // }
+
+    // #[derive(Debug)]
+    // pub struct MapFactory { // TODO: is the name factory appropriate?
+    //     pub map_boolean: HashMap<HConsed<Boolean>, Value>
+    // }
+    // impl MapFactory {
+    //     pub fn new() -> MapFactory {
+    //         MapFactory {
+    //             map_boolean: HashMap::new()
+    //         }
+    //     }
+    // }
+
+    consign! {
+        let BOOLEAN_FACTORY = consign(37) for Boolean; // TODO: what does 37 mean?
+    }
+
+    pub fn boolean(id: &str) -> HConsed<Boolean> {
+        BOOLEAN_FACTORY.mk(Boolean { id: id.to_string()})
+    }
+
+    pub fn or<'a>(lhs: &'a dyn Expression, rhs: &'a dyn Expression) -> Or<'a> {
+        Or { lhs: lhs, rhs: rhs } // TODO: use hashconsing?
+    }
+
+    pub fn foo() {
+        // assert_eq! { BOOLEAN_FACTORY.len(), 0 }
+        BOOLEAN_FACTORY.mk(Boolean { id: "x1".to_string() });
+        // assert_eq! { BOOLEAN_FACTORY.len(), 1 }
+        BOOLEAN_FACTORY.mk(Boolean { id: "x1".to_string() });
+        // assert_eq! { BOOLEAN_FACTORY.len(), 1 }
+
+        // let map_factory = MapFactory::new();
+        // let mut map_boolean = map_factory.map_boolean;
+        // let var = BOOLEAN_FACTORY.mk(Boolean { id: "x1".to_string() });
+        // map_boolean.insert(var, Value::Bool(true));
+
+        // println!("{:?}", map_boolean);
+    }
+}
+
+
+
+
+// pub struct Expressions {
+    // pub type Expr<T> = HConsed<Expression<T>>;
+
+
+
+
+
+    // pub trait Expression {
+    //     fn evaluate(&self) -> Option<bool>;
+    // }
+    // // pub trait Term: Expression {}
+    // // pub trait Formula: Expression {}
+
+    // pub struct Boolean { id: String, value: Option<bool> }
+    // impl Expression for Boolean {
+    //     fn evaluate(&self) -> Option<bool> {
+    //         self.value
+    //     }
+    // }
+
+    // pub struct Or { operands: Vec<Box<dyn Expression>> }
+    // impl Expression for Or {
+    //     fn evaluate(&self) -> Option<bool> {
+    //         for op in self.operands.iter() {
+    //             match op.evaluate() {
+    //                 Some(true) => return Some(true),
+    //                 None       => return None,
+    //                 _          => ()
+    //             }
+    //         }
+    //         Some(false)
+    //     }
+    // }
+
+    // pub struct Negation { expression: Box<dyn Expression> } // TODO: Term instead of Expression?
+    // impl Expression for Negation {
+    //     fn evaluate(&self) -> Option<bool> {
+    //         match self.expression.evaluate() {
+    //             Some(true)  => Some(false),
+    //             Some(false) => Some(true),
+    //             None        => None
+    //         }
+    //     }
+    // }
+
+    // pub fn boolean(id: &str, value: Option<bool>) -> Box<dyn Expression> {
+    //     Box::new(Boolean { id: id.to_string(), value: value })
+    // }
+
+    // pub fn or(operands: Vec<Box<dyn Expression>>) -> Box<dyn Expression> {
+    //     Box::new(Or { operands: operands})
+    // }
+
+    // pub fn negation(expression: Box<dyn Expression>) -> Box<dyn Expression> {
+    //     Box::new(Negation { expression: expression })
+    // }
+
+
+
+
+
+    // #[derive(Debug, Hash, Clone, PartialEq, Eq)]
+    // pub struct Constant {
+    //     value: i32
+    // }
+
+    // impl Expression for Constant {
+    //     fn evaluate(&self) {
+    //         println!("evaluate constant")
+    //     }
+    // }
 
     // consign! {
     //     // let FACTORY = consign(37) for dyn Expression; // TODO: what does 37 mean?
     //     let FACTORY = consign(37) for Box<dyn Expression>; // TODO: what does 37 mean?
     // }
 
-    pub fn constant(value: i32) /*-> Box<dyn Expression>*/ {
-        // Box::new(Constant { value: value })
 
-        let mut factory: HConsign<Box<dyn Expression>> = HConsign::empty();
 
-        factory.mk(Box::new(Constant { value: 111 }));
+    // pub fn foo(value: i32) /*-> Box<dyn Expression>*/ {
+    //     // Box::new(Constant { value: value })
 
-    }
-}
+    //     // let mut factory: HConsign<Expression<T>> = HConsign::empty();
+    //     // factory.mk(Expression::Expr(111));
+    // }
+// }

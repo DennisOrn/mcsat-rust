@@ -5,15 +5,39 @@ use crate::term::term::Formula;
 use crate::term::term::Term;
 use crate::term::Value;
 
-#[derive(Debug)]
+use crate::experimental::experimental::*;
+use crate::experimental::experimental;
+
+// #[derive(Debug)]
 pub struct Model {
-    map: HashMap<Term, Value>
+    map: HashMap<Term, Value>,
+    // map_factory: MapFactory
 }
 
 impl Model {
     pub fn new() -> Self {
-        Model { map: HashMap::new() }
+        Model {
+            map: HashMap::new(),
+            // map_factory: MapFactory::new()
+        }
     }
+
+
+
+    pub fn evaluate_expression<T: experimental::Expression>(&self, expression: &T) -> Option<bool> {
+        expression.evaluate()
+
+
+        // let map_boolean = &self.map_factory.map_boolean;
+        // match *e {
+        //     experimental::Boolean(_) => (),
+        //     _ => ()
+        // }
+    }
+
+
+
+
 
     pub fn evaluate(&self, e: &Expr) -> Option<bool> {
         // println!("EVAL: {}", e);

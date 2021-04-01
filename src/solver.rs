@@ -9,7 +9,6 @@ use crate::trail::Trail;
 use crate::trail::TrailElement;
 
 
-#[derive(Debug)]
 pub struct Solver {
     state: State,
     model: Model,
@@ -125,7 +124,9 @@ impl Solver {
 impl fmt::Display for Solver {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f,
-            "SOLVER\nstate:\t\t{:?}\nmodel:\t\t{:?}\ntrail:\t\t{:?}\nundecided:\t{:?}",
-            self.state, self.model, self.trail, self.undecided)
+            // "SOLVER\nstate:\t\t{:?}\nmodel:\t\t{:?}\ntrail:\t\t{:?}\nundecided:\t{:?}",
+            // self.state, self.model, self.trail, self.undecided)
+            "SOLVER\nstate:\t\t{:?}\ntrail:\t\t{:?}\nundecided:\t{:?}",
+            self.state, self.trail, self.undecided)
     }
 }

@@ -5,14 +5,37 @@ mod state;
 mod term;
 mod trail;
 
-use crate::experimental::expression;
+// use crate::experimental::experimental;
 use crate::solver::Solver;
-use crate::term::term::*;
+use crate::model::Model;
+// use crate::term::term::*;
+use std::collections::HashMap;
 
 fn main() {
 
-    let foo = expression::constant(52);
+    // experimental::experimental::foo();
+
+    let x1 = experimental::experimental::boolean("x1");
+    let x2 = experimental::experimental::boolean("x2");
+    let or1 = experimental::experimental::or(x1.get(), x2.get());
+
+    let model = Model::new();
+    let result = model.evaluate_expression(&or1);
+    println!("{:?}", result);
+    // model.evaluate_expression::<experimental::experimental::Boolean>(b1.get()); // same thing^
+
+
+    // model.evaluate_expression(b1.get());
+
+    // let expression = Boolean { id: "x1".to_string() } as Expression;
+    // model.evaluate_expression(e);
+
+
+
+    // let foo = boolean("x", Some(true));
     // foo.evaluate();
+
+    // let bar = or(vec![negation(boolean("x1", Some(true))), boolean("x2", Some(false))]);
 
 
     // x < 1 ∨ p, ¬p ∨ x = 2
