@@ -31,7 +31,7 @@ impl Solver {
     pub fn run(&mut self) -> bool {
         loop {
             println!("\n{}", self);
-            assert!(self.is_consistent());
+            // assert!(self.is_consistent());
 
 
 
@@ -63,7 +63,7 @@ impl Solver {
                                     Term::Boolean(_) => {
 
                                         let new_value = Value::Bool(true);
-                                        self.model.set_value(t.clone(), new_value);
+                                        // self.model.set_value(t.clone(), new_value);
                                         self.trail.push(TrailElement::DecidedLiteral(t.clone()));
                                         // assert!(self.model.evaluate(&t.clone()) == Some(true));
                                     }
@@ -81,7 +81,7 @@ impl Solver {
                         }
 
                     } else {
-                        assert!(self.is_complete());
+                        // assert!(self.is_complete());
                         return true
                     }
 
@@ -96,29 +96,29 @@ impl Solver {
 
 
 
-    fn is_consistent(&self) -> bool { // TODO: trail
-        println!("\nCHECK: is_consistent");
-        for e in &self.clauses {
-            match self.model.evaluate(&e) {
-                Some(false) => { println!("{}: false", e); return false }
-                Some(true) => { println!("{}: true", e); }
-                None => { println!("{}: None", e); }
-            }
-        }
-        true
-    }
+    // fn is_consistent(&self) -> bool { // TODO: trail
+    //     println!("\nCHECK: is_consistent");
+    //     for e in &self.clauses {
+    //         match self.model.evaluate(&e) {
+    //             Some(false) => { println!("{}: false", e); return false }
+    //             Some(true) => { println!("{}: true", e); }
+    //             None => { println!("{}: None", e); }
+    //         }
+    //     }
+    //     true
+    // }
 
-    fn is_complete(&self) -> bool {
-        println!("\nCHECK: is_complete");
-        for e in &self.clauses {
-            match self.model.evaluate(&e) {
-                Some(false) => { println!("{}: false", e); return false }
-                Some(true) => { println!("{}: true", e); }
-                None => { println!("{}: None", e); return false }
-            }
-        }
-        true
-    }
+    // fn is_complete(&self) -> bool {
+    //     println!("\nCHECK: is_complete");
+    //     for e in &self.clauses {
+    //         match self.model.evaluate(&e) {
+    //             Some(false) => { println!("{}: false", e); return false }
+    //             Some(true) => { println!("{}: true", e); }
+    //             None => { println!("{}: None", e); return false }
+    //         }
+    //     }
+    //     true
+    // }
 }
 
 impl fmt::Display for Solver {

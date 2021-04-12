@@ -13,47 +13,23 @@
     pass reference to hashmap as argument
     */
 
+
+
 #[macro_use]
 pub mod experimental {
     use hashconsing::*;
     use std::collections::HashMap;
     use std::hash::{Hash, Hasher};
 
+    use crate::model::Model;
+
     // pub type
 
     pub trait Expression {
-        fn evaluate(&self) -> Option<bool>;
+        fn evaluate(&self, model: &Model) -> Option<bool>;
     }
 
-
-    #[derive(Debug, Hash, Clone, PartialEq, Eq)]
-    pub struct Boolean {
-        id: String
-    }
-    impl Expression for Boolean {
-        fn evaluate(&self) -> Option<bool> {
-            println!("evaluating: Boolean");
-            None
-        }
-    }
-    impl Boolean {}
-
-    pub struct Or<'a> {
-        lhs: &'a dyn Expression, // TODO: array of Expressions instead of just 2?
-        rhs: &'a dyn Expression,
-    }
-    impl Expression for Or<'_> {
-        fn evaluate(&self) -> Option<bool> {
-            println!("evaluating: Or");
-            match (self.lhs.evaluate(), self.rhs.evaluate()) { // TODO: perform lazy evaluation here.
-                (Some(true), _) => return Some(true),
-                (_, Some(true)) => return Some(true),
-                (None, _) => return None,
-                (_, None) => return None,
-                (_, _) => return Some(false)
-            }
-        }
-    }
+    pub trait Term {}
 
     #[derive(Debug)]
     pub enum Value {
@@ -84,32 +60,24 @@ pub mod experimental {
     //     }
     // }
 
-    consign! {
-        let BOOLEAN_FACTORY = consign(37) for Boolean; // TODO: what does 37 mean?
-    }
+    // consign! {
+    //     let BOOLEAN_FACTORY = consign(37) for Boolean; // TODO: what does 37 mean?
+    // }
 
-    pub fn boolean(id: &str) -> HConsed<Boolean> {
-        BOOLEAN_FACTORY.mk(Boolean { id: id.to_string()})
-    }
+    // pub fn foo() {
+    //     // assert_eq! { BOOLEAN_FACTORY.len(), 0 }
+    //     BOOLEAN_FACTORY.mk(Boolean { id: "x1".to_string() });
+    //     // assert_eq! { BOOLEAN_FACTORY.len(), 1 }
+    //     BOOLEAN_FACTORY.mk(Boolean { id: "x1".to_string() });
+    //     // assert_eq! { BOOLEAN_FACTORY.len(), 1 }
 
-    pub fn or<'a>(lhs: &'a dyn Expression, rhs: &'a dyn Expression) -> Or<'a> {
-        Or { lhs: lhs, rhs: rhs } // TODO: use hashconsing?
-    }
+    //     // let map_factory = MapFactory::new();
+    //     // let mut map_boolean = map_factory.map_boolean;
+    //     // let var = BOOLEAN_FACTORY.mk(Boolean { id: "x1".to_string() });
+    //     // map_boolean.insert(var, Value::Bool(true));
 
-    pub fn foo() {
-        // assert_eq! { BOOLEAN_FACTORY.len(), 0 }
-        BOOLEAN_FACTORY.mk(Boolean { id: "x1".to_string() });
-        // assert_eq! { BOOLEAN_FACTORY.len(), 1 }
-        BOOLEAN_FACTORY.mk(Boolean { id: "x1".to_string() });
-        // assert_eq! { BOOLEAN_FACTORY.len(), 1 }
-
-        // let map_factory = MapFactory::new();
-        // let mut map_boolean = map_factory.map_boolean;
-        // let var = BOOLEAN_FACTORY.mk(Boolean { id: "x1".to_string() });
-        // map_boolean.insert(var, Value::Bool(true));
-
-        // println!("{:?}", map_boolean);
-    }
+    //     // println!("{:?}", map_boolean);
+    // }
 }
 
 

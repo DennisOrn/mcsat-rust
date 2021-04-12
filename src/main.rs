@@ -1,3 +1,4 @@
+mod types;
 mod experimental;
 mod model;
 mod solver;
@@ -8,21 +9,31 @@ mod trail;
 // use crate::experimental::experimental;
 use crate::solver::Solver;
 use crate::model::Model;
+use crate::experimental::experimental::Value;
 // use crate::term::term::*;
+use types::*;
 use std::collections::HashMap;
 
 fn main() {
 
-    // experimental::experimental::foo();
+    // let x1 = boolean::boolean("x1");
+    // let x2 = boolean::boolean("x2");
+    // let or = or::or(&x1, &x2);
 
-    let x1 = experimental::experimental::boolean("x1");
-    let x2 = experimental::experimental::boolean("x2");
-    let or1 = experimental::experimental::or(x1.get(), x2.get());
+    let mut model = Model::new();
 
-    let model = Model::new();
-    let result = model.evaluate_expression(&or1);
-    println!("{:?}", result);
-    // model.evaluate_expression::<experimental::experimental::Boolean>(b1.get()); // same thing^
+    let x1 = boolean::new("x1");
+    model.set_boolean(x1.clone(), Value::Bool(true));
+
+    let x2 = boolean::new("x2");
+    let x3 = boolean::new("x3");
+    let or = or::new(vec![Box::new(x1), Box::new(x2), Box::new(x3)]);
+
+    match model.evaluate(&or) {
+        Some(true)  => println!("True"),
+        Some(false) => println!("False"),
+        None        => println!("None")
+    }
 
 
     // model.evaluate_expression(b1.get());
