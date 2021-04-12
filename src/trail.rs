@@ -1,12 +1,14 @@
+use crate::clause::Clause;
+use crate::formula::formula::Formula;
 use crate::term::term::Term;
-// use crate::term::term::ActualTerm;
+use crate::term::term::Variable;
 use crate::term::Value;
 
 #[derive(Debug)]
 pub enum TrailElement {
-    DecidedLiteral(Term),
-    PropagatedLiteral(Term, Term),
-    ModelAssignment(Term, Value),
+    DecidedLiteral(Formula),
+    PropagatedLiteral(Clause, Formula),
+    ModelAssignment(Variable, Value),
 }
 
 #[derive(Debug)]

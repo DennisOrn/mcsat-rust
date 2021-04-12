@@ -1,3 +1,4 @@
+mod clause;
 mod formula;
 mod model;
 mod solver;
@@ -5,6 +6,7 @@ mod state;
 mod term;
 mod trail;
 
+use crate::clause::Clause;
 use crate::formula::formula::Predicate::*;
 use crate::formula::formula::*;
 use crate::solver::Solver;
@@ -29,11 +31,20 @@ fn main() {
     //     false => println!("\nUNSAT")
     // }
 
-    let c1 = vec![
-        predicate(LessThanOrEqual, vec![variable("x"), constant(15)]),
-        predicate(Equal, vec![variable("x"), constant(15)]),
-    ];
 
-    println!("{}", predicate(LessThanOrEqual, vec![variable("x"), constant(15)]));
-    // println!("{}", c1);
+    let formula1 = predicate(LessThanOrEqual, vec![variable("x"), constant(15)]);
+    let formula2 = predicate(Equal, vec![variable("x"), constant(15)]);
+
+    println!("{}", formula1);
+    println!("{}", formula2);
+
+    let clause = Clause::new(vec![formula1, formula2]);
+    let clauses = vec![clause];
+    let undecided = vec![variable("x")];
+
+    let mut solver = Solver::new(clauses, undecided);
+    match solver.run() {
+        true => println!("\nSAT"),
+        false => println!("\nUNSAT")
+    }
 }

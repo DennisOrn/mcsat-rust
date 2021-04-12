@@ -44,17 +44,17 @@ pub mod formula {
                 Formula::Predicate(predicate, args) => {
                     match write!(fmt, "({}", predicate) {
                         Err(e) => return Err(e),
-                        _ => (),
+                        _      => (),
                     }
                     for arg in args {
                         match write!(fmt, " {}", arg) {
                             Err(e) => return Err(e),
-                            _ => (),
+                            _      => (),
                         }
                     }
                     match write!(fmt, ")") {
                         Err(e) => Err(e),
-                        _ => Ok(()),
+                        _      => Ok(()),
                     }
                 }
             }
@@ -64,11 +64,11 @@ pub mod formula {
     impl ::std::fmt::Display for Predicate {
         fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
             match self {
-                Predicate::LessThan => write!(fmt, "<"),
-                Predicate::GreaterThan => write!(fmt, ">"),
-                Predicate::LessThanOrEqual => write!(fmt, "≤"),
+                Predicate::LessThan           => write!(fmt, "<"),
+                Predicate::GreaterThan        => write!(fmt, ">"),
+                Predicate::LessThanOrEqual    => write!(fmt, "≤"),
                 Predicate::GreaterThanOrEqual => write!(fmt, "≥"),
-                Predicate::Equal => write!(fmt, "="),
+                Predicate::Equal              => write!(fmt, "="),
             }
         }
     }
