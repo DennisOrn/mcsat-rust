@@ -1,6 +1,6 @@
 use crate::term::term::Expr;
 use crate::term::term::Term;
-use crate::term::Value;
+use crate::term::term::Value;
 use std::collections::HashMap;
 
 #[derive(Debug)]

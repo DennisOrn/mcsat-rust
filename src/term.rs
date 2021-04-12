@@ -12,13 +12,19 @@ pub mod term {
 
     #[derive(Debug, Hash, Clone, PartialEq, Eq)]
     pub struct Variable {
-        id: String, // TODO: usize should be faster.
+        id: String, // TODO: usize is probably more efficient than String.
                     // TODO: add member indicating whether variable is negated?
     }
 
     #[derive(Debug, Hash, Clone, PartialEq, Eq)]
     pub struct Constant {
-        value: i32,
+        value: Value,
+    }
+
+    #[derive(Debug, Hash, Clone, PartialEq, Eq)]
+    pub enum Value {
+        Bool(bool),
+        Integer(i32),
     }
 
     consign! {
@@ -29,7 +35,7 @@ pub mod term {
         FACTORY.mk(Term::Variable(Variable { id: id.to_string() }))
     }
 
-    pub fn constant(value: i32) -> HConsed<Term> {
+    pub fn constant(value: Value) -> HConsed<Term> {
         FACTORY.mk(Term::Constant(Constant { value: value }))
     }
 
@@ -74,11 +80,13 @@ pub mod term {
             }
         }
     }
-}
 
-// TODO: move/remove this
-#[derive(Clone, Copy, Debug)]
-pub enum Value {
-    Bool(bool),
-    Integer(i32),
+    impl ::std::fmt::Display for Value {
+        fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+            match self {
+                Value::Bool(x)    => write!(fmt, "{}", x),
+                Value::Integer(x) => write!(fmt, "{}", x),
+            }
+        }
+    }
 }

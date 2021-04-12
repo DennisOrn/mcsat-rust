@@ -42,20 +42,10 @@ pub mod formula {
                 Formula::True => write!(fmt, "True"),
                 Formula::False => write!(fmt, "False"),
                 Formula::Predicate(predicate, args) => {
-                    match write!(fmt, "({}", predicate) {
-                        Err(e) => return Err(e),
-                        _      => (),
-                    }
-                    for arg in args {
-                        match write!(fmt, " {}", arg) {
-                            Err(e) => return Err(e),
-                            _      => (),
-                        }
-                    }
-                    match write!(fmt, ")") {
-                        Err(e) => Err(e),
-                        _      => Ok(()),
-                    }
+                    let args_list: Vec<String> = args.iter()
+                        .map(|x| x.to_string())
+                        .collect();
+                    write!(fmt, "({} {})", predicate.to_string(), args_list.join(" "))
                 }
             }
         }
