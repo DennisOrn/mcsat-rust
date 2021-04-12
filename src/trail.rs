@@ -6,17 +6,19 @@ use crate::term::Value;
 pub enum TrailElement {
     DecidedLiteral(Term),
     PropagatedLiteral(Term, Term),
-    ModelAssignment(Term, Value)
+    ModelAssignment(Term, Value),
 }
 
 #[derive(Debug)]
 pub struct Trail {
-    elements: Vec<TrailElement>
+    elements: Vec<TrailElement>,
 }
 
 impl Trail {
     pub fn new() -> Trail {
-        Trail { elements: Vec::new() }
+        Trail {
+            elements: Vec::new(),
+        }
     }
 
     pub fn push(&mut self, element: TrailElement) {
@@ -28,12 +30,9 @@ impl Trail {
         self.elements.pop()
     }
 
-
     fn check_trail_element(&self, element: &TrailElement) -> bool {
         // TODO
         true
-
-
 
         // match element {
         //     TrailElement::DecidedLiteral(term) => {

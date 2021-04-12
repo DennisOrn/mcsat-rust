@@ -1,126 +1,84 @@
 #[macro_use]
 pub mod term {
     use hashconsing::*;
-    pub type Expr = HConsed<Expression>;
-
-    #[derive(Debug, Hash, Clone, PartialEq, Eq)]
-    pub enum Expression {
-        Term(Term),
-        Formula(Formula)
-    }
+    pub type Expr = HConsed<Term>; // TODO: remove this
 
     #[derive(Debug, Hash, Clone, PartialEq, Eq)]
     pub enum Term {
-        Constant(i32),
-        Boolean(String),
-        Variable(String),
-        True(),
-        False()
+        Variable(Variable),
+        Constant(Constant),
+        Function(Function, Vec<HConsed<Term>>),
     }
 
     #[derive(Debug, Hash, Clone, PartialEq, Eq)]
-    pub enum Formula {
-        LessThan(Expr, Expr),
-        GreaterThan(Expr, Expr),
-        Equal(Expr, Expr),
-
-        Conjunction(Expr, Expr),
-        Disjunction(Expr, Expr),
-        Negation(Expr)
+    pub struct Variable {
+        id: String, // TODO: usize should be faster.
+                    // TODO: add member indicating whether variable is negated?
     }
 
-    use Term::*;
-    use Formula::*;
+    #[derive(Debug, Hash, Clone, PartialEq, Eq)]
+    pub struct Constant {
+        value: i32,
+    }
 
     consign! {
-        let FACTORY = consign(37) for Expression; // TODO: what does 37 mean?
+        let FACTORY = consign(37) for Term; // TODO: what does 37 mean?
     }
 
-    pub fn constant(value: i32) -> Expr {
-        FACTORY.mk(Expression::Term(Constant(value)))
+    pub fn variable(id: &str) -> HConsed<Term> {
+        FACTORY.mk(Term::Variable(Variable { id: id.to_string() }))
     }
 
-    pub fn boolean(name: &str) -> Expr {
-        FACTORY.mk(Expression::Term(Boolean(String::from(name))))
+    pub fn constant(value: i32) -> HConsed<Term> {
+        FACTORY.mk(Term::Constant(Constant { value: value }))
     }
 
-    pub fn variable(name: &str) -> Expr {
-        FACTORY.mk(Expression::Term(Variable(String::from(name))))
+    pub fn function(function: Function, args: Vec<HConsed<Term>>) -> HConsed<Term> {
+        FACTORY.mk(Term::Function(function, args))
     }
 
-    pub fn t() -> Expr {
-        FACTORY.mk(Expression::Term(True()))
+    #[derive(Debug, Hash, Clone, PartialEq, Eq)]
+    pub enum Function {
+        // TODO: implement hashconsing for this?
+        Plus,
+        Minus,
     }
 
-    pub fn f() -> Expr {
-        FACTORY.mk(Expression::Term(False()))
+    impl ::std::fmt::Display for Term {
+        fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+            match self {
+                Term::Variable(id) => write!(fmt, "{}", id),
+                Term::Constant(value) => write!(fmt, "{}", value),
+                Term::Function(function, args) => write!(fmt, "FUN({}, {:?})", function, args),
+            }
+        }
     }
 
-    pub fn less_than(lhs: Expr, rhs: Expr) -> Expr {
-        FACTORY.mk(Expression::Formula(LessThan(lhs, rhs)))
+    impl ::std::fmt::Display for Variable {
+        fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+            write!(fmt, "{}", self.id)
+        }
     }
 
-    pub fn greater_than(lhs: Expr, rhs: Expr) -> Expr {
-        FACTORY.mk(Expression::Formula(GreaterThan(lhs, rhs)))
+    impl ::std::fmt::Display for Constant {
+        fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+            write!(fmt, "{}", self.value)
+        }
     }
 
-    pub fn equal(lhs: Expr, rhs: Expr) -> Expr {
-        FACTORY.mk(Expression::Formula(Equal(lhs, rhs)))
-    }
-
-    pub fn conjunction(lhs: Expr, rhs: Expr) -> Expr {
-        FACTORY.mk(Expression::Formula(Conjunction(lhs, rhs)))
-    }
-
-    pub fn disjunction(lhs: Expr, rhs: Expr) -> Expr {
-        FACTORY.mk(Expression::Formula(Disjunction(lhs, rhs)))
-    }
-
-    pub fn negation(term: Expr) -> Expr {
-        FACTORY.mk(Expression::Formula(Negation(term)))
-    }
-}
-
-use term::Expression;
-use term::Term;
-use term::Formula;
-
-impl ::std::fmt::Display for Expression {
-    fn fmt(& self, fmt: & mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        match self {
-            Expression::Term(term)       => write!(fmt, "{}", term),
-            Expression::Formula(formula) => write!(fmt, "{}", formula)
+    impl ::std::fmt::Display for Function {
+        fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+            match self {
+                Function::Plus => write!(fmt, "+"),
+                Function::Minus => write!(fmt, "-"),
+            }
         }
     }
 }
 
-impl ::std::fmt::Display for Term {
-    fn fmt(& self, fmt: & mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        match self {
-            Term::Constant(value) => write!(fmt, "{}", value),
-            Term::Boolean(name)   => write!(fmt, "{}", name),
-            Term::Variable(name)  => write!(fmt, "{}", name),
-            Term::True()          => write!(fmt, "true"),
-            Term::False()         => write!(fmt, "false")
-        }
-    }
-}
-
-impl ::std::fmt::Display for Formula {
-    fn fmt(& self, fmt: & mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        match self {
-            Formula::LessThan(lhs, rhs)    => write!(fmt, "{} < {}", lhs, rhs),
-            Formula::GreaterThan(lhs, rhs) => write!(fmt, "{} > {}", lhs, rhs),
-            Formula::Equal(lhs, rhs)       => write!(fmt, "{} = {}", lhs, rhs),
-            Formula::Conjunction(lhs, rhs) => write!(fmt, "({} ∧ {})", lhs, rhs),
-            Formula::Disjunction(lhs, rhs) => write!(fmt, "({} ∨ {})", lhs, rhs),
-            Formula::Negation(term)        => write!(fmt, "¬{}", term)
-        }
-    }
-}
-
+// TODO: move/remove this
 #[derive(Clone, Copy, Debug)]
 pub enum Value {
     Bool(bool),
-    Integer(i32)
+    Integer(i32),
 }
