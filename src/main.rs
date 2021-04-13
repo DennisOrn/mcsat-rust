@@ -15,18 +15,19 @@ use crate::trail::Trail;
 use crate::trail::TrailElement;
 
 fn main() {
+    // EXAMPLE 2 FROM MCSAT-PAPER
     // x < 1 ∨ p, ¬p ∨ x = 2
     let clause1 = Clause::new(vec![
         predicate(LessThan, vec![variable("x"), constant(Value::Integer(1))]),
-        predicate(Equal, vec![variable("p"), constant(Value::Bool(true))]),
+        predicate(Equal, vec![variable("p"), constant(Value::Boolean(true))]),
     ]);
     let clause2 = Clause::new(vec![
-        predicate(Equal, vec![variable("p"), constant(Value::Bool(false))]),
+        predicate(Equal, vec![variable("p"), constant(Value::Boolean(false))]),
         predicate(Equal, vec![variable("x"), constant(Value::Integer(2))]),
     ]);
 
     let clauses = vec![clause1, clause2];
-    let undecided = vec![variable("x")];
+    let undecided = vec![variable("x"), variable("p")];
 
     for c in &clauses {
         println!("{}", c);
@@ -39,16 +40,13 @@ fn main() {
     }
 
     // Trail test
-    // M = [x > 1, x → 1, y → 0, z > 0]
+    // EXAMPLE 1 FROM MCSAT-PAPER
+    // M = [[x > 1, x ↦ 1, y ↦ 0, z > 0]]
     let mut trail = Trail::new();
-    trail.push(TrailElement::DecidedLiteral(
-        predicate(
-            GreaterThan,
-            vec![variable("x"), constant(Value::Integer(0))],
-        )
-        .get()
-        .clone(),
-    ));
+    trail.push(TrailElement::DecidedLiteral(predicate(
+        GreaterThan,
+        vec![variable("x"), constant(Value::Integer(0))],
+    )));
     trail.push(TrailElement::ModelAssignment(
         Variable::new("x"),
         Value::Integer(1),
@@ -57,48 +55,44 @@ fn main() {
         Variable::new("y"),
         Value::Integer(0),
     ));
-    trail.push(TrailElement::DecidedLiteral(
-        predicate(
-            GreaterThan,
-            vec![variable("z"), constant(Value::Integer(0))],
-        )
-        .get()
-        .clone(),
-    ));
+    trail.push(TrailElement::DecidedLiteral(predicate(
+        GreaterThan,
+        vec![variable("z"), constant(Value::Integer(0))],
+    )));
 
     assert!(
         trail.value_t(&predicate(
             GreaterThan,
             vec![variable("x"), constant(Value::Integer(0))],
         )) == Some(true),
-        "value_t(x > 0) == true"
+        "expected: value_t(x > 0) == true"
     );
     assert!(
         trail.value_b(&predicate(
             GreaterThan,
             vec![variable("x"), constant(Value::Integer(0))],
         )) == Some(true),
-        "value_b(x > 0) == true"
+        "expected: value_b(x > 0) == true"
     );
     assert!(
         trail.value_t(&predicate(
             GreaterThan,
             vec![variable("x"), constant(Value::Integer(1))],
         )) == Some(false),
-        "value_t(x > 1) == false"
+        "expected: value_t(x > 1) == false"
     );
     assert!(
         trail.value_t(&predicate(
             GreaterThan,
             vec![variable("z"), constant(Value::Integer(0))],
         )) == None,
-        "value_t(z > 0) == None"
+        "expected: value_t(z > 0) == None"
     );
     assert!(
         trail.value_b(&predicate(
             GreaterThan,
             vec![variable("z"), constant(Value::Integer(0))],
         )) == Some(true),
-        "value_b(z > 0) == true"
+        "expected: value_b(z > 0) == true"
     );
 }

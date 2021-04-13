@@ -6,13 +6,6 @@ use crate::term::term::Variable;
 use hashconsing::*;
 
 #[derive(Debug)]
-pub enum TrailElement {
-    DecidedLiteral(Formula),
-    PropagatedLiteral(Clause, Formula),
-    ModelAssignment(Variable, Value),
-}
-
-#[derive(Debug)]
 pub struct Trail {
     elements: Vec<TrailElement>,
 }
@@ -24,10 +17,9 @@ impl Trail {
         }
     }
 
-    // TODO: change the name of these functions?
     pub fn value_b(&self, formula: &HConsed<Formula>) -> Option<bool> {
         // TODO: inefficient to loop each time function is called.
-        let decided_literals = self
+        let literals = self
             .elements
             .iter()
             .filter(|x| match x {
@@ -41,22 +33,33 @@ impl Trail {
                 _ => None,
             });
 
-        let f = formula.get();
-
-        println!("decided literals:");
-        for l in decided_literals {
-            println!("{:?}", l);
-            if f == l {
+        println!("literals:");
+        for literal in literals {
+            println!("{}", literal);
+            if literal == formula {
                 return Some(true);
-            } // TODO: else if negation of f != l return Some(false)
+            } // TODO: else if negation of formula != literal return Some(false)
         }
 
         None
     }
 
     pub fn value_t(&self, formula: &HConsed<Formula>) -> Option<bool> {
-        /* PSEUDO
-        for each model assignment
+        /* PSEUDO CODE
+        function value_t(formula) -> Option<bool> {
+            for each model assignment (MA):
+                replace variable in formula with the MA
+                evaluate
+                if true      => return true
+                if false     => return false
+                if undefined => continue loop
+            return None
+        }
+        EXAMPLE:
+        formula: x > 0
+        MA: x → 1
+        formula and MA implies that "1 > 0"
+        evaluates to true: return Some(true)
         */
 
         // TODO: inefficient to loop each time function is called.
@@ -65,8 +68,8 @@ impl Trail {
             _ => false,
         });
 
-        for x in model_assignments {
-            println!("{:?}", x);
+        for assignment in model_assignments {
+            println!("{}", assignment);
         }
 
         None // TODO: return correct value
@@ -98,4 +101,21 @@ impl Trail {
     //         _ => panic!("PropagatedLiteral not implemented!")
     //     }
     // }
+}
+
+#[derive(Debug)]
+pub enum TrailElement {
+    DecidedLiteral(HConsed<Formula>),
+    PropagatedLiteral(Clause, HConsed<Formula>),
+    ModelAssignment(Variable, Value), // TODO: should Variable be HConsed?
+}
+
+impl ::std::fmt::Display for TrailElement {
+    fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        match self {
+            TrailElement::DecidedLiteral(f) => write!(fmt, "{}", f),
+            TrailElement::PropagatedLiteral(c, f) => write!(fmt, "{} → {}", c, f),
+            TrailElement::ModelAssignment(var, val) => write!(fmt, "{} ↦ {}", var, val),
+        }
+    }
 }
