@@ -38,24 +38,67 @@ fn main() {
         false => println!("\nUNSAT"),
     }
 
+    // Trail test
+    // M = [x > 1, x → 1, y → 0, z > 0]
     let mut trail = Trail::new();
+    trail.push(TrailElement::DecidedLiteral(
+        predicate(
+            GreaterThan,
+            vec![variable("x"), constant(Value::Integer(0))],
+        )
+        .get()
+        .clone(),
+    ));
+    trail.push(TrailElement::ModelAssignment(
+        Variable::new("x"),
+        Value::Integer(1),
+    ));
+    trail.push(TrailElement::ModelAssignment(
+        Variable::new("y"),
+        Value::Integer(0),
+    ));
+    trail.push(TrailElement::DecidedLiteral(
+        predicate(
+            GreaterThan,
+            vec![variable("z"), constant(Value::Integer(0))],
+        )
+        .get()
+        .clone(),
+    ));
 
-    let f1 = predicate(Equal, vec![variable("x"), constant(Value::Integer(2))]);
-    let decided_literal = TrailElement::DecidedLiteral(f1.get().clone());
-    trail.push(decided_literal);
-
-    let c2 = Clause::new(vec![predicate(
-        Equal,
-        vec![variable("p"), constant(Value::Bool(false))],
-    )]);
-
-    let f2 = predicate(LessThan, vec![variable("x"), constant(Value::Integer(1))]);
-    let propagated_literal = TrailElement::PropagatedLiteral(c2, f2.get().clone());
-    trail.push(propagated_literal);
-
-    match trail.value_b(f2) {
-        Some(true) => println!("True"),
-        Some(false) => println!("False"),
-        None => println!("None"),
-    };
+    assert!(
+        trail.value_t(&predicate(
+            GreaterThan,
+            vec![variable("x"), constant(Value::Integer(0))],
+        )) == Some(true),
+        "value_t(x > 0) == true"
+    );
+    assert!(
+        trail.value_b(&predicate(
+            GreaterThan,
+            vec![variable("x"), constant(Value::Integer(0))],
+        )) == Some(true),
+        "value_b(x > 0) == true"
+    );
+    assert!(
+        trail.value_t(&predicate(
+            GreaterThan,
+            vec![variable("x"), constant(Value::Integer(1))],
+        )) == Some(false),
+        "value_t(x > 1) == false"
+    );
+    assert!(
+        trail.value_t(&predicate(
+            GreaterThan,
+            vec![variable("z"), constant(Value::Integer(0))],
+        )) == None,
+        "value_t(z > 0) == None"
+    );
+    assert!(
+        trail.value_b(&predicate(
+            GreaterThan,
+            vec![variable("z"), constant(Value::Integer(0))],
+        )) == Some(true),
+        "value_b(z > 0) == true"
+    );
 }

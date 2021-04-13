@@ -14,6 +14,11 @@ pub mod term {
         id: String, // TODO: usize is probably more efficient than String.
                     // TODO: add member indicating whether variable is negated?
     }
+    impl Variable {
+        pub fn new(id: &str) -> Variable {
+            Variable { id: id.to_string() }
+        }
+    }
 
     #[derive(Debug, Hash, Clone, PartialEq, Eq)]
     pub struct Constant {

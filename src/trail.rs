@@ -25,7 +25,8 @@ impl Trail {
     }
 
     // TODO: change the name of these functions?
-    pub fn value_b(&self, formula: HConsed<Formula>) -> Option<bool> {
+    pub fn value_b(&self, formula: &HConsed<Formula>) -> Option<bool> {
+        // TODO: inefficient to loop each time function is called.
         let decided_literals = self
             .elements
             .iter()
@@ -41,6 +42,8 @@ impl Trail {
             });
 
         let f = formula.get();
+
+        println!("decided literals:");
         for l in decided_literals {
             println!("{:?}", l);
             if f == l {
@@ -49,6 +52,24 @@ impl Trail {
         }
 
         None
+    }
+
+    pub fn value_t(&self, formula: &HConsed<Formula>) -> Option<bool> {
+        /* PSEUDO
+        for each model assignment
+        */
+
+        // TODO: inefficient to loop each time function is called.
+        let model_assignments = self.elements.iter().filter(|x| match x {
+            TrailElement::ModelAssignment(_, _) => true,
+            _ => false,
+        });
+
+        for x in model_assignments {
+            println!("{:?}", x);
+        }
+
+        None // TODO: return correct value
     }
 
     pub fn push(&mut self, element: TrailElement) {
