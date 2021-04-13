@@ -1,4 +1,3 @@
-use crate::term::term::Expr;
 use crate::term::term::Term;
 use crate::term::term::Value;
 use std::collections::HashMap;

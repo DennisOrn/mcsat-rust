@@ -11,7 +11,7 @@ pub mod formula {
     }
 
     consign! {
-        let FACTORY = consign(37) for Formula; // TODO: what does 37 mean?
+        let FACTORY = consign(37) for Formula; // TODO: initial capacity: 37
     }
 
     pub fn t() -> HConsed<Formula> {
@@ -42,9 +42,7 @@ pub mod formula {
                 Formula::True => write!(fmt, "True"),
                 Formula::False => write!(fmt, "False"),
                 Formula::Predicate(predicate, args) => {
-                    let args_list: Vec<String> = args.iter()
-                        .map(|x| x.to_string())
-                        .collect();
+                    let args_list: Vec<String> = args.iter().map(|x| x.to_string()).collect();
                     write!(fmt, "({} {})", predicate.to_string(), args_list.join(" "))
                 }
             }
@@ -54,11 +52,11 @@ pub mod formula {
     impl ::std::fmt::Display for Predicate {
         fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
             match self {
-                Predicate::LessThan           => write!(fmt, "<"),
-                Predicate::GreaterThan        => write!(fmt, ">"),
-                Predicate::LessThanOrEqual    => write!(fmt, "≤"),
+                Predicate::LessThan => write!(fmt, "<"),
+                Predicate::GreaterThan => write!(fmt, ">"),
+                Predicate::LessThanOrEqual => write!(fmt, "≤"),
                 Predicate::GreaterThanOrEqual => write!(fmt, "≥"),
-                Predicate::Equal              => write!(fmt, "="),
+                Predicate::Equal => write!(fmt, "="),
             }
         }
     }

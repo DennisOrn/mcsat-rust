@@ -1,14 +1,12 @@
 use crate::clause::Clause;
 use crate::model::Model;
 use crate::state::State;
-use crate::term::term::Expr;
 use crate::term::term::Term;
 use crate::term::term::Value;
 use crate::trail::Trail;
 use crate::trail::TrailElement;
 use hashconsing::HConsed;
 use std::fmt;
-
 
 #[derive(Debug)]
 pub struct Solver {

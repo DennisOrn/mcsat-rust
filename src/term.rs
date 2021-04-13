@@ -1,7 +1,6 @@
 #[macro_use]
 pub mod term {
     use hashconsing::*;
-    pub type Expr = HConsed<Term>; // TODO: remove this
 
     #[derive(Debug, Hash, Clone, PartialEq, Eq)]
     pub enum Term {
@@ -28,7 +27,7 @@ pub mod term {
     }
 
     consign! {
-        let FACTORY = consign(37) for Term; // TODO: what does 37 mean?
+        let FACTORY = consign(37) for Term; // TODO: initial capacity: 37
     }
 
     pub fn variable(id: &str) -> HConsed<Term> {
@@ -84,7 +83,7 @@ pub mod term {
     impl ::std::fmt::Display for Value {
         fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
             match self {
-                Value::Bool(x)    => write!(fmt, "{}", x),
+                Value::Bool(x) => write!(fmt, "{}", x),
                 Value::Integer(x) => write!(fmt, "{}", x),
             }
         }
