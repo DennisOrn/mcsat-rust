@@ -36,8 +36,8 @@ pub mod formula {
         Equal,
     }
 
-    impl ::std::fmt::Display for Formula {
-        fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+    impl std::fmt::Display for Formula {
+        fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
             match self {
                 Formula::True => write!(fmt, "True"),
                 Formula::False => write!(fmt, "False"),
@@ -49,8 +49,8 @@ pub mod formula {
         }
     }
 
-    impl ::std::fmt::Display for Predicate {
-        fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+    impl std::fmt::Display for Predicate {
+        fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
             match self {
                 Predicate::LessThan => write!(fmt, "<"),
                 Predicate::GreaterThan => write!(fmt, ">"),

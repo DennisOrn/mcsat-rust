@@ -54,8 +54,8 @@ pub mod term {
         Minus,
     }
 
-    impl ::std::fmt::Display for Term {
-        fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+    impl std::fmt::Display for Term {
+        fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
             match self {
                 Term::Variable(id) => write!(fmt, "{}", id),
                 Term::Constant(value) => write!(fmt, "{}", value),
@@ -64,20 +64,20 @@ pub mod term {
         }
     }
 
-    impl ::std::fmt::Display for Variable {
-        fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+    impl std::fmt::Display for Variable {
+        fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
             write!(fmt, "{}", self.id)
         }
     }
 
-    impl ::std::fmt::Display for Constant {
-        fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+    impl std::fmt::Display for Constant {
+        fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
             write!(fmt, "{}", self.value)
         }
     }
 
-    impl ::std::fmt::Display for Function {
-        fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+    impl std::fmt::Display for Function {
+        fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
             match self {
                 Function::Plus => write!(fmt, "+"),
                 Function::Minus => write!(fmt, "-"),
@@ -85,8 +85,8 @@ pub mod term {
         }
     }
 
-    impl ::std::fmt::Display for Value {
-        fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+    impl std::fmt::Display for Value {
+        fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
             match self {
                 Value::Boolean(x) => write!(fmt, "{}", x),
                 Value::Integer(x) => write!(fmt, "{}", x),

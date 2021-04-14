@@ -1,6 +1,5 @@
 use crate::clause::Clause;
 use crate::formula::formula::Formula;
-use crate::term::term::Term;
 use crate::term::term::Value;
 use crate::term::term::Variable;
 use hashconsing::*;
@@ -15,6 +14,24 @@ impl Trail {
         Trail {
             elements: Vec::new(),
         }
+    }
+
+    pub fn push_decided_literal(&mut self, formula: HConsed<Formula>) {
+        self.elements.push(TrailElement::DecidedLiteral(formula))
+    }
+
+    pub fn push_propagated_literal(&mut self, clause: Clause, formula: HConsed<Formula>) {
+        self.elements
+            .push(TrailElement::PropagatedLiteral(clause, formula))
+    }
+
+    pub fn push_model_assignment(&mut self, variable: Variable, value: Value) {
+        self.elements
+            .push(TrailElement::ModelAssignment(variable, value))
+    }
+
+    pub fn pop(&mut self) -> Option<TrailElement> {
+        self.elements.pop()
     }
 
     pub fn value_b(&self, formula: &HConsed<Formula>) -> Option<bool> {
@@ -46,7 +63,7 @@ impl Trail {
 
     pub fn value_t(&self, formula: &HConsed<Formula>) -> Option<bool> {
         /* PSEUDO CODE
-        function value_t(formula) -> Option<bool> {
+        fn value_t(formula) -> Option<bool> {
             for each model assignment (MA):
                 replace variable in formula with the MA
                 evaluate
@@ -75,15 +92,6 @@ impl Trail {
         None // TODO: return correct value
     }
 
-    pub fn push(&mut self, element: TrailElement) {
-        // assert!(self.check_trail_element(&element));
-        self.elements.push(element);
-    }
-
-    pub fn pop(&mut self) -> Option<TrailElement> {
-        self.elements.pop()
-    }
-
     // fn check_trail_element(&self, element: &TrailElement) -> bool {
     //     match element {
     //         TrailElement::DecidedLiteral(term) => {
@@ -110,8 +118,8 @@ pub enum TrailElement {
     ModelAssignment(Variable, Value), // TODO: should Variable be HConsed?
 }
 
-impl ::std::fmt::Display for TrailElement {
-    fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+impl std::fmt::Display for TrailElement {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             TrailElement::DecidedLiteral(f) => write!(fmt, "{}", f),
             TrailElement::PropagatedLiteral(c, f) => write!(fmt, "{} → {}", c, f),

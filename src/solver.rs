@@ -2,11 +2,8 @@ use crate::clause::Clause;
 use crate::model::Model;
 use crate::state::State;
 use crate::term::term::Term;
-use crate::term::term::Value;
 use crate::trail::Trail;
-use crate::trail::TrailElement;
 use hashconsing::HConsed;
-use std::fmt;
 
 #[derive(Debug)]
 pub struct Solver {
@@ -115,8 +112,8 @@ impl Solver {
     // }
 }
 
-impl fmt::Display for Solver {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl std::fmt::Display for Solver {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(
             f,
             "SOLVER\nstate:\t\t{:?}\nmodel:\t\t{:?}\ntrail:\t\t{:?}\nundecided:\t{:?}",

@@ -12,7 +12,6 @@ use crate::formula::formula::*;
 use crate::solver::Solver;
 use crate::term::term::*;
 use crate::trail::Trail;
-use crate::trail::TrailElement;
 
 fn main() {
     // EXAMPLE 2 FROM MCSAT-PAPER
@@ -43,22 +42,17 @@ fn main() {
     // EXAMPLE 1 FROM MCSAT-PAPER
     // M = [[x > 1, x ↦ 1, y ↦ 0, z > 0]]
     let mut trail = Trail::new();
-    trail.push(TrailElement::DecidedLiteral(predicate(
+
+    trail.push_decided_literal(predicate(
         GreaterThan,
         vec![variable("x"), constant(Value::Integer(0))],
-    )));
-    trail.push(TrailElement::ModelAssignment(
-        Variable::new("x"),
-        Value::Integer(1),
     ));
-    trail.push(TrailElement::ModelAssignment(
-        Variable::new("y"),
-        Value::Integer(0),
-    ));
-    trail.push(TrailElement::DecidedLiteral(predicate(
+    trail.push_model_assignment(Variable::new("x"), Value::Integer(1));
+    trail.push_model_assignment(Variable::new("y"), Value::Integer(0));
+    trail.push_decided_literal(predicate(
         GreaterThan,
         vec![variable("z"), constant(Value::Integer(0))],
-    )));
+    ));
 
     assert!(
         trail.value_t(&predicate(

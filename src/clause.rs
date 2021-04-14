@@ -12,8 +12,8 @@ impl Clause {
     }
 }
 
-impl ::std::fmt::Display for Clause {
-    fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+impl std::fmt::Display for Clause {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
         let formulas_list: Vec<String> = self.formulas.iter().map(|x| x.to_string()).collect();
         write!(fmt, "{}", formulas_list.join(" ∨ "))
     }
