@@ -1,10 +1,10 @@
-use crate::term::term::Term;
+use crate::term::term::Variable;
 use crate::term::term::Value;
 use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct Model {
-    map: HashMap<Term, Value>,
+    map: HashMap<Variable, Value>,
 }
 
 impl Model {
@@ -65,12 +65,16 @@ impl Model {
     //     }
     // }
 
-    pub fn set_value(&mut self, t: Term, value: Value) {
+    pub fn set_value(&mut self, t: Variable, value: Value) {
         // assert!(self.check_term_value(&t, &value));
         self.map.insert(t, value);
     }
 
-    pub fn clear_value(&mut self, t: Term) {
+    pub fn get_value(&self, t: &Variable) -> Option<&Value> {
+        self.map.get(t)
+    }
+
+    pub fn clear_value(&mut self, t: Variable) {
         self.map.remove(&t);
     }
 

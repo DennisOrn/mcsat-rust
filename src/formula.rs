@@ -1,5 +1,6 @@
 #[macro_use]
 pub mod formula {
+    use crate::model::Model;
     use crate::term::term::Term;
     use hashconsing::*;
 
@@ -8,6 +9,16 @@ pub mod formula {
         True,
         False,
         Predicate(Predicate, Vec<HConsed<Term>>),
+    }
+    impl Formula {
+        pub fn evaluate(&self, model: &Model) -> Option<bool> {
+            println!("eval formula: {}", self);
+            match self {
+                Formula::True => Some(true),
+                Formula::False => Some(false),
+                Formula::Predicate(predicate, args) => predicate.evaluate(model, args),
+            }
+        }
     }
 
     consign! {
@@ -30,10 +41,24 @@ pub mod formula {
     pub enum Predicate {
         // TODO: implement hashconsing for this?
         LessThan,
-        GreaterThan,
         LessThanOrEqual,
+        GreaterThan,
         GreaterThanOrEqual,
         Equal,
+    }
+    impl Predicate {
+        pub fn evaluate(&self, model: &Model, args: &Vec<HConsed<Term>>) -> Option<bool> {
+            println!("eval predicate: {}", self);
+            match self {
+                // Predicate::LessThan => Some(args[0].evaluate(model) < args[1].evaluate(model)),
+                // Predicate::LessThanOrEqual => Some(args[0].evaluate(model) <= args[1].evaluate(model)),
+                // Predicate::GreaterThan => Some(args[0].evaluate(model) > args[1].evaluate(model)),
+                // Predicate::GreaterThanOrEqual => Some(args[0].evaluate(model) >= args[1].evaluate(model)),
+                Predicate::Equal => Some(args[0].evaluate(model) == args[1].evaluate(model)),
+
+                _ => panic!(),
+            }
+        }
     }
 
     impl std::fmt::Display for Formula {

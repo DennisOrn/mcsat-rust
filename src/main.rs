@@ -38,6 +38,16 @@ fn main() {
         false => println!("\nUNSAT"),
     }
 
+    // Evaluate test
+    let mut model = model::Model::new();
+    model.set_value(Variable::new("x"), Value::Integer(2));
+    println!(
+        "{:?}",
+        predicate(Equal, vec![variable("x"), constant(Value::Integer(2))])
+            .get()
+            .evaluate(&model)
+    );
+
     // Trail test
     // EXAMPLE 1 FROM MCSAT-PAPER
     // M = [[x > 1, x ↦ 1, y ↦ 0, z > 0]]
