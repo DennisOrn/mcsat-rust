@@ -1,5 +1,5 @@
-use crate::term::term::Variable;
-use crate::term::term::Value;
+use crate::types::value::Value;
+use crate::types::variable::Variable;
 use std::collections::HashMap;
 
 #[derive(Debug)]

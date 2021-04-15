@@ -5,13 +5,16 @@ mod solver;
 mod state;
 mod term;
 mod trail;
+mod types;
 
 use crate::clause::Clause;
-use crate::formula::formula::Predicate::*;
 use crate::formula::formula::*;
 use crate::solver::Solver;
 use crate::term::term::*;
 use crate::trail::Trail;
+use crate::types::predicate::Predicate::*;
+use crate::types::value::Value;
+use crate::types::variable::Variable;
 
 fn main() {
     // EXAMPLE 2 FROM MCSAT-PAPER

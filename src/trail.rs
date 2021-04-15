@@ -1,7 +1,7 @@
 use crate::clause::Clause;
 use crate::formula::formula::Formula;
-use crate::term::term::Value;
-use crate::term::term::Variable;
+use crate::types::value::Value;
+use crate::types::variable::Variable;
 use hashconsing::*;
 
 #[derive(Debug)]
