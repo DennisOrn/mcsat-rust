@@ -37,15 +37,15 @@ fn main() {
 
     let mut solver = Solver::new(clauses, undecided);
     match solver.run() {
-        true => println!("\nSAT"),
-        false => println!("\nUNSAT"),
+        true => println!("\nSAT\n"),
+        false => println!("\nUNSAT\n"),
     }
 
     // Evaluate test
     let mut model = model::Model::new();
     model.set_value(Variable::new("x"), Value::Integer(2));
     println!(
-        "{:?}",
+        "{:?}\n",
         predicate(Equal, vec![variable("x"), constant(Value::Integer(2))])
             .get()
             .evaluate(&model)

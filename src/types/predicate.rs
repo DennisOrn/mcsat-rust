@@ -19,7 +19,14 @@ impl Predicate {
             // Predicate::LessThanOrEqual => Some(args[0].evaluate(model) <= args[1].evaluate(model)),
             // Predicate::GreaterThan => Some(args[0].evaluate(model) > args[1].evaluate(model)),
             // Predicate::GreaterThanOrEqual => Some(args[0].evaluate(model) >= args[1].evaluate(model)),
-            Predicate::Equal => Some(args[0].evaluate(model) == args[1].evaluate(model)),
+            Predicate::Equal => {
+                let lhs = args[0].evaluate(model);
+                let rhs = args[1].evaluate(model); // TODO: do lazy evaluation.
+                match (lhs, rhs) {
+                    (None, _) | (_, None) => None,
+                    _ => Some(lhs == rhs),
+                }
+            }
 
             _ => panic!(),
         }
