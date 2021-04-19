@@ -50,7 +50,10 @@ pub mod term {
             match self {
                 Term::Variable(id) => write!(fmt, "{}", id),
                 Term::Constant(value) => write!(fmt, "{}", value),
-                Term::Function(function, args) => write!(fmt, "FUN({}, {:?})", function, args),
+                Term::Function(function, args) => {
+                    let args_list: Vec<String> = args.iter().map(|x| x.to_string()).collect();
+                    write!(fmt, "({} {})", function.to_string(), args_list.join(" "))
+                }
             }
         }
     }

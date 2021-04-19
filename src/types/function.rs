@@ -11,16 +11,17 @@ pub enum Function {
 }
 impl Function {
     pub fn evaluate(&self, model: &Model, args: &Vec<HConsed<Term>>) -> Option<Value> {
-        panic!()
-        // match self {
-        //     Function::Plus => {
-        //         match (args[0].evaluate(model), args[1].evaluate(model)) {
-        //             (Some(lhs), Some(rhs)) => lhs + rhs,
-        //             _ => None,
-        //         }
-        //     }
-        //     Function::Minus => ,
-        // }
+        match self {
+            // TODO: do lazy evaluation.
+            Function::Plus => match (args[0].evaluate(model), args[1].evaluate(model)) {
+                (None, _) | (_, None) => None,
+                (Some(lhs), Some(rhs)) => Some(lhs + rhs),
+            },
+            Function::Minus => match (args[0].evaluate(model), args[1].evaluate(model)) {
+                (None, _) | (_, None) => None,
+                (Some(lhs), Some(rhs)) => Some(lhs - rhs),
+            },
+        }
     }
 }
 
