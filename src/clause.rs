@@ -1,20 +1,20 @@
-use crate::formula::formula::Formula;
+use crate::literal::Literal;
 use hashconsing::HConsed;
 
 #[derive(Debug)]
 pub struct Clause {
-    formulas: Vec<HConsed<Formula>>,
+    literals: Vec<Literal>,
 }
 
 impl Clause {
-    pub fn new(formulas: Vec<HConsed<Formula>>) -> Clause {
-        Clause { formulas: formulas }
+    pub fn new(literals: Vec<Literal>) -> Clause {
+        Clause { literals: literals }
     }
 }
 
 impl std::fmt::Display for Clause {
     fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let formulas_list: Vec<String> = self.formulas.iter().map(|x| x.to_string()).collect();
+        let formulas_list: Vec<String> = self.literals.iter().map(|x| x.to_string()).collect();
         write!(fmt, "{}", formulas_list.join(" ∨ "))
     }
 }

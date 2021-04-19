@@ -1,5 +1,6 @@
 mod clause;
 mod formula;
+mod literal;
 mod model;
 mod solver;
 mod state;
@@ -9,6 +10,7 @@ mod types;
 
 use crate::clause::Clause;
 use crate::formula::formula::*;
+use crate::literal::Literal;
 use crate::solver::Solver;
 use crate::term::term::*;
 use crate::trail::Trail;
@@ -29,18 +31,28 @@ fn main() {
     //     predicate(Equal, vec![variable("x"), constant(Value::Integer(2))]),
     // ]);
 
-    // let clauses = vec![clause1, clause2];
-    // let undecided = vec![variable("x"), variable("p")];
+    let clause1 = Clause::new(vec![Literal::new(
+        predicate(Less, vec![variable("x"), constant(Value::Integer(1))]),
+        false,
+    )]);
 
-    // for c in &clauses {
-    //     println!("{}", c);
-    // }
+    let clause2 = Clause::new(vec![Literal::new(
+        predicate(Equal, vec![variable("x"), constant(Value::Integer(2))]),
+        true,
+    )]);
 
-    // let mut solver = Solver::new(clauses, undecided);
-    // match solver.run() {
-    //     true => println!("\nSAT\n"),
-    //     false => println!("\nUNSAT\n"),
-    // }
+    let clauses = vec![clause1, clause2];
+    let undecided = vec![variable("x"), variable("p")];
+
+    for c in &clauses {
+        println!("{}", c);
+    }
+
+    let mut solver = Solver::new(clauses, undecided);
+    match solver.run() {
+        true => println!("\nSAT\n"),
+        false => println!("\nUNSAT\n"),
+    }
 
     // Evaluate test
     let mut model = model::Model::new();
