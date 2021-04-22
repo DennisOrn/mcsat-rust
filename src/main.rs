@@ -59,33 +59,23 @@ fn test_evaluate_undefined_variable() {
     let model = Model::new();
 
     assert_eq!(
-        less(variable("x"), constant(Value::Integer(2)))
-            .get()
-            .evaluate(&model),
+        less(variable("x"), constant(Value::Integer(2))).evaluate(&model),
         None
     );
     assert_eq!(
-        less_equal(variable("x"), constant(Value::Integer(2)))
-            .get()
-            .evaluate(&model),
+        less_equal(variable("x"), constant(Value::Integer(2))).evaluate(&model),
         None
     );
     assert_eq!(
-        greater(variable("x"), constant(Value::Integer(2)))
-            .get()
-            .evaluate(&model),
+        greater(variable("x"), constant(Value::Integer(2))).evaluate(&model),
         None
     );
     assert_eq!(
-        greater_equal(variable("x"), constant(Value::Integer(2)))
-            .get()
-            .evaluate(&model),
+        greater_equal(variable("x"), constant(Value::Integer(2))).evaluate(&model),
         None
     );
     assert_eq!(
-        equal(variable("x"), constant(Value::Integer(2)))
-            .get()
-            .evaluate(&model),
+        equal(variable("x"), constant(Value::Integer(2))).evaluate(&model),
         None
     );
 }
@@ -96,34 +86,63 @@ fn test_evaluate_defined_variable() {
     model.set_value(Variable::new("x"), Value::Integer(2));
 
     assert_eq!(
-        less(variable("x"), constant(Value::Integer(2)))
-            .get()
-            .evaluate(&model),
+        less(variable("x"), constant(Value::Integer(2))).evaluate(&model),
         Some(false)
     );
     assert_eq!(
-        less_equal(variable("x"), constant(Value::Integer(2)))
-            .get()
-            .evaluate(&model),
+        less_equal(variable("x"), constant(Value::Integer(2))).evaluate(&model),
         Some(true)
     );
     assert_eq!(
-        greater(variable("x"), constant(Value::Integer(2)))
-            .get()
-            .evaluate(&model),
+        greater(variable("x"), constant(Value::Integer(2))).evaluate(&model),
         Some(false)
     );
     assert_eq!(
-        greater_equal(variable("x"), constant(Value::Integer(2)))
-            .get()
-            .evaluate(&model),
+        greater_equal(variable("x"), constant(Value::Integer(2))).evaluate(&model),
         Some(true)
     );
     assert_eq!(
-        equal(variable("x"), constant(Value::Integer(2)))
-            .get()
-            .evaluate(&model),
+        equal(variable("x"), constant(Value::Integer(2))).evaluate(&model),
         Some(true)
+    );
+}
+
+#[test]
+fn test_evaluate_literal() {
+    let model = Model::new();
+
+    assert_eq!(
+        Literal::new(
+            equal(
+                plus(constant(Value::Integer(1)), constant(Value::Integer(1))),
+                constant(Value::Integer(2))
+            ),
+            false
+        )
+        .evaluate(&model),
+        Some(true)
+    );
+    assert_eq!(
+        Literal::new(
+            equal(
+                plus(constant(Value::Integer(1)), constant(Value::Integer(1))),
+                constant(Value::Integer(2))
+            ),
+            true
+        )
+        .evaluate(&model),
+        Some(false)
+    );
+    assert_eq!(
+        Literal::new(
+            equal(
+                plus(constant(Value::Integer(1)), constant(Value::Integer(1))),
+                variable("x")
+            ),
+            false
+        )
+        .evaluate(&model),
+        None
     );
 }
 
@@ -136,7 +155,6 @@ fn test_evaluate_function_undefined_variable() {
             variable("x"),
             plus(constant(Value::Integer(1)), constant(Value::Integer(1)))
         )
-        .get()
         .evaluate(&model),
         None
     );
@@ -152,7 +170,6 @@ fn test_evaluate_function_defined_variable() {
             variable("x"),
             plus(constant(Value::Integer(1)), constant(Value::Integer(1)))
         )
-        .get()
         .evaluate(&model),
         Some(true)
     );
@@ -161,7 +178,6 @@ fn test_evaluate_function_defined_variable() {
             variable("x"),
             plus(constant(Value::Integer(1)), constant(Value::Integer(2)))
         )
-        .get()
         .evaluate(&model),
         Some(false)
     );
@@ -170,7 +186,6 @@ fn test_evaluate_function_defined_variable() {
             plus(constant(Value::Integer(1)), constant(Value::Integer(6))),
             minus(constant(Value::Integer(9)), variable("x"))
         )
-        .get()
         .evaluate(&model),
         Some(true)
     );

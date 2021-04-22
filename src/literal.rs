@@ -25,7 +25,9 @@ impl Literal {
     }
 
     pub fn evaluate(&self, model: &Model) -> Option<bool> {
-        self.formula.evaluate(model)
+        self.formula
+            .evaluate(model)
+            .map(|b| if self.is_negated { !b } else { b })
     }
 }
 

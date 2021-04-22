@@ -29,7 +29,8 @@ impl Trail {
 
     pub fn push_model_assignment(&mut self, variable: Variable, value: Value) {
         self.elements
-            .push(TrailElement::ModelAssignment(variable, value))
+            .push(TrailElement::ModelAssignment(variable.clone(), value));
+        self.model.set_value(variable, value);
     }
 
     pub fn pop(&mut self) -> Option<TrailElement> {
@@ -50,9 +51,9 @@ impl Trail {
         println!("value_b with literal {}", literal);
 
         let literals = self.all_literals();
+        let negated_literal = literal.negate();
 
         println!("literals in trail: ");
-        let negated_literal = literal.negate();
         for l in literals {
             println!("{}", l);
             if l == literal {
@@ -71,28 +72,30 @@ impl Trail {
     pub fn value_t(&self, literal: &Literal) -> Option<bool> {
         println!("value_t with literal {}", literal);
 
-        let model_assignments = self.all_assignments();
-        let mut model_clone = self.model.clone();
+        // let model_assignments = self.all_assignments();
+        // let mut model_clone = self.model.clone();
 
-        for (var, val) in model_assignments {
-            println!("updating model: {} = {}", var, val);
-            model_clone.set_value(var.clone(), val);
-            match literal.evaluate(&model_clone) {
-                Some(true) => {
-                    println!("evaluation returned true, return true\n");
-                    return Some(true);
-                }
-                Some(false) => {
-                    println!("evaluation returned false, return false\n");
-                    return Some(false);
-                }
-                _ => (),
-            }
-            model_clone.clear_value(var.clone());
-        }
+        // for (var, val) in model_assignments {
+        //     println!("updating model: {} = {}", var, val);
+        //     model_clone.set_value(var.clone(), val);
+        //     match literal.evaluate(&model_clone) {
+        //         Some(true) => {
+        //             println!("evaluation returned true, return true\n");
+        //             return Some(true);
+        //         }
+        //         Some(false) => {
+        //             println!("evaluation returned false, return false\n");
+        //             return Some(false);
+        //         }
+        //         _ => (),
+        //     }
+        //     model_clone.clear_value(var.clone());
+        // }
 
-        println!("undefined, return None\n");
-        None
+        // println!("undefined, return None\n");
+        // None
+
+        literal.evaluate(&self.model)
     }
 
     pub fn is_consistent(&self) -> bool {
@@ -127,16 +130,16 @@ impl Trail {
             .collect()
     }
 
-    fn all_assignments(&self) -> Vec<(Variable, Value)> {
-        // TODO: inefficient to loop each time function is called.
-        self.elements
-            .iter()
-            .flat_map(|x| match x {
-                TrailElement::ModelAssignment(var, val) => Some((var.clone(), *val)),
-                _ => None,
-            })
-            .collect()
-    }
+    // fn all_assignments(&self) -> Vec<(Variable, Value)> {
+    //     // TODO: inefficient to loop each time function is called.
+    //     self.elements
+    //         .iter()
+    //         .flat_map(|x| match x {
+    //             TrailElement::ModelAssignment(var, val) => Some((var.clone(), *val)),
+    //             _ => None,
+    //         })
+    //         .collect()
+    // }
 }
 
 #[derive(Debug)]
