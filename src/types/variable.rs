@@ -11,14 +11,13 @@ impl Variable {
         Variable { id: id.to_string() }
     }
     pub fn evaluate(&self, model: &Model) -> Option<Value> {
-        print!("eval variable\t{}", self);
         match model.get_value(self) {
             Some(value) => {
-                println!(": {}", value);
+                println!("{}", value);
                 Some(value.clone())
             }
             None => {
-                println!(": None");
+                println!("None");
                 None
             }
         }

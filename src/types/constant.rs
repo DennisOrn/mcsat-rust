@@ -9,7 +9,7 @@ impl Constant {
         Constant { value: value }
     }
     pub fn evaluate(&self) -> Value {
-        println!("eval constant\t{}", self);
+        println!("{}", self);
         self.value
     }
 }

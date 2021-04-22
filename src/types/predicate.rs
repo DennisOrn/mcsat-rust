@@ -13,7 +13,6 @@ pub enum Predicate {
 }
 impl Predicate {
     pub fn evaluate(&self, model: &Model, args: &Vec<HConsed<Term>>) -> Option<bool> {
-        println!("eval predicate\t{}", self);
         match self {
             // TODO: do lazy evaluation.
             Predicate::Less => match (args[0].evaluate(model), args[1].evaluate(model)) {

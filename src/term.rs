@@ -11,7 +11,7 @@ pub mod term {
     pub enum Term {
         Variable(Variable),
         Constant(Constant),
-        Function(Function, Vec<HConsed<Term>>),
+        Function(Function, Vec<HConsed<Term>>), // TODO: Vec or just two args?
     }
     impl Term {
         // pub fn evaluate<'a>(&self, model: &'a Model) -> Option<&'a Value> {
@@ -20,11 +20,21 @@ pub mod term {
         //     value
         // }
         pub fn evaluate(&self, model: &Model) -> Option<Value> {
-            println!("eval term\t{}", self);
             match self {
-                Term::Variable(variable) => variable.evaluate(model),
-                Term::Constant(constant) => Some(constant.evaluate()),
-                Term::Function(function, args) => function.evaluate(model, args),
+                Term::Variable(variable) => {
+                    print!("eval term\t{}: ", self);
+                    variable.evaluate(model)
+                }
+                Term::Constant(constant) => {
+                    print!("eval term\t{}: ", self);
+                    Some(constant.evaluate())
+                }
+                Term::Function(function, args) => {
+                    println!("eval term\t{}", self);
+                    let res = function.evaluate(model, args);
+                    println!("eval term\t{}: {:?}", self, res);
+                    res
+                }
             }
         }
     }

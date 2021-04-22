@@ -9,15 +9,25 @@ pub mod formula {
     pub enum Formula {
         True,
         False,
-        Predicate(Predicate, Vec<HConsed<Term>>),
+        Predicate(Predicate, Vec<HConsed<Term>>), // TODO: Vec or just two args?
     }
     impl Formula {
         pub fn evaluate(&self, model: &Model) -> Option<bool> {
-            println!("eval formula\t{}", self);
             match self {
-                Formula::True => Some(true),
-                Formula::False => Some(false),
-                Formula::Predicate(predicate, args) => predicate.evaluate(model, args),
+                Formula::True => {
+                    println!("eval formula\t{}: true\n", self);
+                    Some(true)
+                }
+                Formula::False => {
+                    println!("eval formula\t{}: false\n", self);
+                    Some(false)
+                }
+                Formula::Predicate(predicate, args) => {
+                    println!("eval formula\t{}", self);
+                    let res = predicate.evaluate(model, args);
+                    println!("eval formula\t{}: {:?}\n", self, res);
+                    res
+                }
             }
         }
     }
