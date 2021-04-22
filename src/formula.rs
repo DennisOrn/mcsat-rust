@@ -34,8 +34,24 @@ pub mod formula {
         FACTORY.mk(Formula::False)
     }
 
-    pub fn predicate(predicate: Predicate, args: Vec<HConsed<Term>>) -> HConsed<Formula> {
-        FACTORY.mk(Formula::Predicate(predicate, args))
+    pub fn less(lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Formula> {
+        FACTORY.mk(Formula::Predicate(Predicate::Less, vec![lhs, rhs]))
+    }
+
+    pub fn less_equal(lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Formula> {
+        FACTORY.mk(Formula::Predicate(Predicate::LessEqual, vec![lhs, rhs]))
+    }
+
+    pub fn greater(lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Formula> {
+        FACTORY.mk(Formula::Predicate(Predicate::Greater, vec![lhs, rhs]))
+    }
+
+    pub fn greater_equal(lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Formula> {
+        FACTORY.mk(Formula::Predicate(Predicate::GreaterEqual, vec![lhs, rhs]))
+    }
+
+    pub fn equal(lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Formula> {
+        FACTORY.mk(Formula::Predicate(Predicate::Equal, vec![lhs, rhs]))
     }
 
     impl std::fmt::Display for Formula {

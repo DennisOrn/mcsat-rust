@@ -9,14 +9,12 @@ mod trail;
 mod types;
 
 use crate::clause::Clause;
-use crate::formula::formula::*;
+use crate::formula::formula::{equal, greater, greater_equal, less, less_equal};
 use crate::literal::Literal;
 use crate::model::Model;
 use crate::solver::Solver;
-use crate::term::term::*;
+use crate::term::term::{constant, minus, plus, variable};
 use crate::trail::Trail;
-use crate::types::function::Function::*;
-use crate::types::predicate::Predicate::*;
 use crate::types::value::Value;
 use crate::types::variable::Variable;
 
@@ -33,12 +31,12 @@ fn main() {
     // ]);
 
     let clause1 = Clause::new(vec![Literal::new(
-        predicate(Less, vec![variable("x"), constant(Value::Integer(1))]),
+        less(variable("x"), constant(Value::Integer(1))),
         false,
     )]);
 
     let clause2 = Clause::new(vec![Literal::new(
-        predicate(Equal, vec![variable("x"), constant(Value::Integer(2))]),
+        equal(variable("x"), constant(Value::Integer(2))),
         true,
     )]);
 
@@ -58,34 +56,31 @@ fn main() {
     // Evaluate test
     let mut model = Model::new();
     assert!(
-        predicate(Less, vec![variable("x"), constant(Value::Integer(2))])
+        less(variable("x"), constant(Value::Integer(2)))
             .get()
             .evaluate(&model)
             == None
     );
     assert!(
-        predicate(LessEqual, vec![variable("x"), constant(Value::Integer(2))])
+        less_equal(variable("x"), constant(Value::Integer(2)))
             .get()
             .evaluate(&model)
             == None
     );
     assert!(
-        predicate(Greater, vec![variable("x"), constant(Value::Integer(2))])
+        greater(variable("x"), constant(Value::Integer(2)))
             .get()
             .evaluate(&model)
             == None
     );
     assert!(
-        predicate(
-            GreaterEqual,
-            vec![variable("x"), constant(Value::Integer(2))]
-        )
-        .get()
-        .evaluate(&model)
+        greater_equal(variable("x"), constant(Value::Integer(2)))
+            .get()
+            .evaluate(&model)
             == None
     );
     assert!(
-        predicate(Equal, vec![variable("x"), constant(Value::Integer(2))])
+        equal(variable("x"), constant(Value::Integer(2)))
             .get()
             .evaluate(&model)
             == None
@@ -94,82 +89,58 @@ fn main() {
     model.set_value(Variable::new("x"), Value::Integer(2));
 
     assert!(
-        predicate(Less, vec![variable("x"), constant(Value::Integer(2))])
+        less(variable("x"), constant(Value::Integer(2)))
             .get()
             .evaluate(&model)
             == Some(false)
     );
     assert!(
-        predicate(LessEqual, vec![variable("x"), constant(Value::Integer(2))])
+        less_equal(variable("x"), constant(Value::Integer(2)))
             .get()
             .evaluate(&model)
             == Some(true)
     );
     assert!(
-        predicate(Greater, vec![variable("x"), constant(Value::Integer(2))])
+        greater(variable("x"), constant(Value::Integer(2)))
             .get()
             .evaluate(&model)
             == Some(false)
     );
     assert!(
-        predicate(
-            GreaterEqual,
-            vec![variable("x"), constant(Value::Integer(2))]
-        )
-        .get()
-        .evaluate(&model)
+        greater_equal(variable("x"), constant(Value::Integer(2)))
+            .get()
+            .evaluate(&model)
             == Some(true)
     );
     assert!(
-        predicate(Equal, vec![variable("x"), constant(Value::Integer(2))])
+        equal(variable("x"), constant(Value::Integer(2)))
             .get()
             .evaluate(&model)
             == Some(true)
     );
 
     assert!(
-        predicate(
-            Equal,
-            vec![
-                variable("x"),
-                function(
-                    Plus,
-                    vec![constant(Value::Integer(1)), constant(Value::Integer(1))]
-                )
-            ]
+        equal(
+            variable("x"),
+            plus(constant(Value::Integer(1)), constant(Value::Integer(1)))
         )
         .get()
         .evaluate(&model)
             == Some(true)
     );
     assert!(
-        predicate(
-            Equal,
-            vec![
-                variable("x"),
-                function(
-                    Plus,
-                    vec![constant(Value::Integer(1)), constant(Value::Integer(2))]
-                )
-            ]
+        equal(
+            variable("x"),
+            plus(constant(Value::Integer(1)), constant(Value::Integer(2)))
         )
         .get()
         .evaluate(&model)
             == Some(false)
     );
     assert!(
-        predicate(
-            Equal,
-            vec![
-                function(
-                    Plus,
-                    vec![constant(Value::Integer(1)), constant(Value::Integer(6))]
-                ),
-                function(
-                    Minus,
-                    vec![constant(Value::Integer(10)), constant(Value::Integer(3))]
-                )
-            ]
+        equal(
+            plus(constant(Value::Integer(1)), constant(Value::Integer(6))),
+            minus(constant(Value::Integer(10)), constant(Value::Integer(3)))
         )
         .get()
         .evaluate(&model)
@@ -183,47 +154,47 @@ fn main() {
     let mut trail = Trail::new();
 
     trail.push_decided_literal(Literal::new(
-        predicate(Greater, vec![variable("x"), constant(Value::Integer(0))]),
+        greater(variable("x"), constant(Value::Integer(0))),
         false,
     ));
     trail.push_model_assignment(Variable::new("x"), Value::Integer(1));
     trail.push_model_assignment(Variable::new("y"), Value::Integer(0));
     trail.push_decided_literal(Literal::new(
-        predicate(Greater, vec![variable("z"), constant(Value::Integer(0))]),
+        greater(variable("z"), constant(Value::Integer(0))),
         false,
     ));
 
     assert!(
         trail.value_t(&Literal::new(
-            predicate(Greater, vec![variable("x"), constant(Value::Integer(0))],),
+            greater(variable("x"), constant(Value::Integer(0))),
             false
         )) == Some(true),
         "expected: value_t(x > 0) == true"
     );
     assert!(
         trail.value_b(&Literal::new(
-            predicate(Greater, vec![variable("x"), constant(Value::Integer(0))],),
+            greater(variable("x"), constant(Value::Integer(0))),
             false
         )) == Some(true),
         "expected: value_b(x > 0) == true"
     );
     assert!(
         trail.value_t(&Literal::new(
-            predicate(Greater, vec![variable("x"), constant(Value::Integer(1))],),
+            greater(variable("x"), constant(Value::Integer(1))),
             false
         )) == Some(false),
         "expected: value_t(x > 1) == false"
     );
     assert!(
         trail.value_t(&Literal::new(
-            predicate(Greater, vec![variable("z"), constant(Value::Integer(0))],),
+            greater(variable("z"), constant(Value::Integer(0))),
             false
         )) == None,
         "expected: value_t(z > 0) == None"
     );
     assert!(
         trail.value_b(&Literal::new(
-            predicate(Greater, vec![variable("z"), constant(Value::Integer(0))],),
+            greater(variable("z"), constant(Value::Integer(0))),
             false
         )) == Some(true),
         "expected: value_b(z > 0) == true"

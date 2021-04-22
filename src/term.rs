@@ -41,8 +41,12 @@ pub mod term {
         FACTORY.mk(Term::Constant(Constant::new(value)))
     }
 
-    pub fn function(function: Function, args: Vec<HConsed<Term>>) -> HConsed<Term> {
-        FACTORY.mk(Term::Function(function, args))
+    pub fn plus(lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Term> {
+        FACTORY.mk(Term::Function(Function::Plus, vec![lhs, rhs]))
+    }
+
+    pub fn minus(lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Term> {
+        FACTORY.mk(Term::Function(Function::Minus, vec![lhs, rhs]))
     }
 
     impl std::fmt::Display for Term {
