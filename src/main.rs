@@ -180,49 +180,49 @@ fn main() {
     // M = [[x > 1, x ↦ 1, y ↦ 0, z > 0]]
     let mut trail = Trail::new();
 
-    trail.push_decided_literal(predicate(
-        Greater,
-        vec![variable("x"), constant(Value::Integer(0))],
+    trail.push_decided_literal(Literal::new(
+        predicate(Greater, vec![variable("x"), constant(Value::Integer(0))]),
+        false,
     ));
     trail.push_model_assignment(Variable::new("x"), Value::Integer(1));
     trail.push_model_assignment(Variable::new("y"), Value::Integer(0));
-    trail.push_decided_literal(predicate(
-        Greater,
-        vec![variable("z"), constant(Value::Integer(0))],
+    trail.push_decided_literal(Literal::new(
+        predicate(Greater, vec![variable("z"), constant(Value::Integer(0))]),
+        false,
     ));
 
     assert!(
-        trail.value_t(&predicate(
-            Greater,
-            vec![variable("x"), constant(Value::Integer(0))],
+        trail.value_t(&Literal::new(
+            predicate(Greater, vec![variable("x"), constant(Value::Integer(0))],),
+            false
         )) == Some(true),
         "expected: value_t(x > 0) == true"
     );
     assert!(
-        trail.value_b(&predicate(
-            Greater,
-            vec![variable("x"), constant(Value::Integer(0))],
+        trail.value_b(&Literal::new(
+            predicate(Greater, vec![variable("x"), constant(Value::Integer(0))],),
+            false
         )) == Some(true),
         "expected: value_b(x > 0) == true"
     );
     assert!(
-        trail.value_t(&predicate(
-            Greater,
-            vec![variable("x"), constant(Value::Integer(1))],
+        trail.value_t(&Literal::new(
+            predicate(Greater, vec![variable("x"), constant(Value::Integer(1))],),
+            false
         )) == Some(false),
         "expected: value_t(x > 1) == false"
     );
     assert!(
-        trail.value_t(&predicate(
-            Greater,
-            vec![variable("z"), constant(Value::Integer(0))],
+        trail.value_t(&Literal::new(
+            predicate(Greater, vec![variable("z"), constant(Value::Integer(0))],),
+            false
         )) == None,
         "expected: value_t(z > 0) == None"
     );
     assert!(
-        trail.value_b(&predicate(
-            Greater,
-            vec![variable("z"), constant(Value::Integer(0))],
+        trail.value_b(&Literal::new(
+            predicate(Greater, vec![variable("z"), constant(Value::Integer(0))],),
+            false
         )) == Some(true),
         "expected: value_b(z > 0) == true"
     );

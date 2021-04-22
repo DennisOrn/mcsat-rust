@@ -1,5 +1,6 @@
 use crate::clause::Clause;
 use crate::formula::formula::Formula;
+use crate::literal::Literal;
 use crate::types::value::Value;
 use crate::types::variable::Variable;
 use hashconsing::*;
@@ -16,13 +17,13 @@ impl Trail {
         }
     }
 
-    pub fn push_decided_literal(&mut self, formula: HConsed<Formula>) {
-        self.elements.push(TrailElement::DecidedLiteral(formula))
+    pub fn push_decided_literal(&mut self, literal: Literal) {
+        self.elements.push(TrailElement::DecidedLiteral(literal))
     }
 
-    pub fn push_propagated_literal(&mut self, clause: Clause, formula: HConsed<Formula>) {
+    pub fn push_propagated_literal(&mut self, clause: Clause, literal: Literal) {
         self.elements
-            .push(TrailElement::PropagatedLiteral(clause, formula))
+            .push(TrailElement::PropagatedLiteral(clause, literal))
     }
 
     pub fn push_model_assignment(&mut self, variable: Variable, value: Value) {
@@ -34,7 +35,7 @@ impl Trail {
         self.elements.pop()
     }
 
-    pub fn value_b(&self, formula: &HConsed<Formula>) -> Option<bool> {
+    pub fn value_b(&self, literal: &Literal) -> Option<bool> {
         // TODO: inefficient to loop each time function is called.
         let literals = self
             .elements
@@ -50,18 +51,19 @@ impl Trail {
                 _ => None,
             });
 
-        println!("literals:");
-        for literal in literals {
-            println!("{}", literal);
-            if literal == formula {
+        let negated_literal = literal.negate();
+        for l in literals {
+            if l == literal {
                 return Some(true);
-            } // TODO: else if negation of formula != literal return Some(false)
+            } else if l == &negated_literal {
+                return Some(false);
+            }
         }
 
         None
     }
 
-    pub fn value_t(&self, formula: &HConsed<Formula>) -> Option<bool> {
+    pub fn value_t(&self, literal: &Literal) -> Option<bool> {
         /* PSEUDO CODE
         fn value_t(formula) -> Option<bool> {
             for each model assignment (MA):
@@ -113,8 +115,8 @@ impl Trail {
 
 #[derive(Debug)]
 pub enum TrailElement {
-    DecidedLiteral(HConsed<Formula>),
-    PropagatedLiteral(Clause, HConsed<Formula>),
+    DecidedLiteral(Literal),
+    PropagatedLiteral(Clause, Literal),
     ModelAssignment(Variable, Value), // TODO: should Variable be HConsed?
 }
 

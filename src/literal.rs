@@ -1,7 +1,7 @@
 use crate::formula::formula::Formula;
 use hashconsing::HConsed;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Literal {
     // TODO: should literals be hashconsed?
     formula: HConsed<Formula>,
@@ -13,6 +13,13 @@ impl Literal {
         Literal {
             formula: formula,
             is_negated: is_negated,
+        }
+    }
+
+    pub fn negate(&self) -> Literal {
+        Literal {
+            formula: self.formula.clone(),
+            is_negated: !self.is_negated,
         }
     }
 
