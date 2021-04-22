@@ -119,11 +119,6 @@ impl Trail {
         // TODO: inefficient to loop each time function is called.
         self.elements
             .iter()
-            .filter(|x| match x {
-                TrailElement::DecidedLiteral(_) => true,
-                TrailElement::PropagatedLiteral(_, _) => true,
-                _ => false,
-            })
             .flat_map(|x| match x {
                 TrailElement::DecidedLiteral(l) => Some(l),
                 TrailElement::PropagatedLiteral(_, l) => Some(l),
@@ -136,10 +131,6 @@ impl Trail {
         // TODO: inefficient to loop each time function is called.
         self.elements
             .iter()
-            .filter(|x| match x {
-                TrailElement::ModelAssignment(_, _) => true,
-                _ => false,
-            })
             .flat_map(|x| match x {
                 TrailElement::ModelAssignment(var, val) => Some((var.clone(), *val)),
                 _ => None,
