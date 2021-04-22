@@ -52,109 +52,136 @@ fn main() {
     //     true => println!("\nSAT\n"),
     //     false => println!("\nUNSAT\n"),
     // }
+}
 
-    // Evaluate test
-    println!("\nEVALUATE TEST\n");
-    let mut model = Model::new();
-    assert!(
+#[test]
+fn test_evaluate_undefined_variable() {
+    let model = Model::new();
+
+    assert_eq!(
         less(variable("x"), constant(Value::Integer(2)))
             .get()
-            .evaluate(&model)
-            == None
+            .evaluate(&model),
+        None
     );
-    assert!(
+    assert_eq!(
         less_equal(variable("x"), constant(Value::Integer(2)))
             .get()
-            .evaluate(&model)
-            == None
+            .evaluate(&model),
+        None
     );
-    assert!(
+    assert_eq!(
         greater(variable("x"), constant(Value::Integer(2)))
             .get()
-            .evaluate(&model)
-            == None
+            .evaluate(&model),
+        None
     );
-    assert!(
+    assert_eq!(
         greater_equal(variable("x"), constant(Value::Integer(2)))
             .get()
-            .evaluate(&model)
-            == None
+            .evaluate(&model),
+        None
     );
-    assert!(
+    assert_eq!(
         equal(variable("x"), constant(Value::Integer(2)))
             .get()
-            .evaluate(&model)
-            == None
+            .evaluate(&model),
+        None
     );
+}
 
-    println!("\nSETTING X = 2\n");
+#[test]
+fn test_evaluate_defined_variable() {
+    let mut model = Model::new();
     model.set_value(Variable::new("x"), Value::Integer(2));
 
-    assert!(
+    assert_eq!(
         less(variable("x"), constant(Value::Integer(2)))
             .get()
-            .evaluate(&model)
-            == Some(false)
+            .evaluate(&model),
+        Some(false)
     );
-    assert!(
+    assert_eq!(
         less_equal(variable("x"), constant(Value::Integer(2)))
             .get()
-            .evaluate(&model)
-            == Some(true)
+            .evaluate(&model),
+        Some(true)
     );
-    assert!(
+    assert_eq!(
         greater(variable("x"), constant(Value::Integer(2)))
             .get()
-            .evaluate(&model)
-            == Some(false)
+            .evaluate(&model),
+        Some(false)
     );
-    assert!(
+    assert_eq!(
         greater_equal(variable("x"), constant(Value::Integer(2)))
             .get()
-            .evaluate(&model)
-            == Some(true)
+            .evaluate(&model),
+        Some(true)
     );
-    assert!(
+    assert_eq!(
         equal(variable("x"), constant(Value::Integer(2)))
             .get()
-            .evaluate(&model)
-            == Some(true)
+            .evaluate(&model),
+        Some(true)
     );
+}
 
-    assert!(
+#[test]
+fn test_evaluate_function_undefined_variable() {
+    let model = Model::new();
+
+    assert_eq!(
         equal(
             variable("x"),
             plus(constant(Value::Integer(1)), constant(Value::Integer(1)))
         )
         .get()
-        .evaluate(&model)
-            == Some(true)
+        .evaluate(&model),
+        None
     );
-    assert!(
+}
+
+#[test]
+fn test_evaluate_function_defined_variable() {
+    let mut model = Model::new();
+    model.set_value(Variable::new("x"), Value::Integer(2));
+
+    assert_eq!(
+        equal(
+            variable("x"),
+            plus(constant(Value::Integer(1)), constant(Value::Integer(1)))
+        )
+        .get()
+        .evaluate(&model),
+        Some(true)
+    );
+    assert_eq!(
         equal(
             variable("x"),
             plus(constant(Value::Integer(1)), constant(Value::Integer(2)))
         )
         .get()
-        .evaluate(&model)
-            == Some(false)
+        .evaluate(&model),
+        Some(false)
     );
-    assert!(
+    assert_eq!(
         equal(
             plus(constant(Value::Integer(1)), constant(Value::Integer(6))),
-            minus(constant(Value::Integer(10)), constant(Value::Integer(3)))
+            minus(constant(Value::Integer(9)), variable("x"))
         )
         .get()
-        .evaluate(&model)
-            == Some(true)
+        .evaluate(&model),
+        Some(true)
     );
+}
 
-    // Trail test
+#[test]
+fn test_trail_value_functions() {
     // EXAMPLE 1 FROM MCSAT-PAPER
     // M = [x > 1, x ↦ 1, y ↦ 0, z > 0]
     println!("\nTRAIL TEST, [x > 1, x ↦ 1, y ↦ 0, z > 0]\n");
     let mut trail = Trail::new();
-
     trail.push_decided_literal(Literal::new(
         greater(variable("x"), constant(Value::Integer(0))),
         false,
@@ -166,39 +193,44 @@ fn main() {
         false,
     ));
 
-    assert!(
+    assert_eq!(
         trail.value_t(&Literal::new(
             greater(variable("x"), constant(Value::Integer(0))),
             false
-        )) == Some(true),
+        )),
+        Some(true),
         "expected: value_t(x > 0) == true"
     );
-    assert!(
+    assert_eq!(
         trail.value_b(&Literal::new(
             greater(variable("x"), constant(Value::Integer(0))),
             false
-        )) == Some(true),
+        )),
+        Some(true),
         "expected: value_b(x > 0) == true"
     );
-    assert!(
+    assert_eq!(
         trail.value_t(&Literal::new(
             greater(variable("x"), constant(Value::Integer(1))),
             false
-        )) == Some(false),
+        )),
+        Some(false),
         "expected: value_t(x > 1) == false"
     );
-    assert!(
+    assert_eq!(
         trail.value_t(&Literal::new(
             greater(variable("z"), constant(Value::Integer(0))),
             false
-        )) == None,
+        )),
+        None,
         "expected: value_t(z > 0) == None"
     );
-    assert!(
+    assert_eq!(
         trail.value_b(&Literal::new(
             greater(variable("z"), constant(Value::Integer(0))),
             false
-        )) == Some(true),
+        )),
+        Some(true),
         "expected: value_b(z > 0) == true"
     );
 }
