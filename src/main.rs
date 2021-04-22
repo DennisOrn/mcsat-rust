@@ -30,30 +30,31 @@ fn main() {
     //     predicate(Equal, vec![variable("x"), constant(Value::Integer(2))]),
     // ]);
 
-    let clause1 = Clause::new(vec![Literal::new(
-        less(variable("x"), constant(Value::Integer(1))),
-        false,
-    )]);
+    // let clause1 = Clause::new(vec![Literal::new(
+    //     less(variable("x"), constant(Value::Integer(1))),
+    //     false,
+    // )]);
 
-    let clause2 = Clause::new(vec![Literal::new(
-        equal(variable("x"), constant(Value::Integer(2))),
-        true,
-    )]);
+    // let clause2 = Clause::new(vec![Literal::new(
+    //     equal(variable("x"), constant(Value::Integer(2))),
+    //     true,
+    // )]);
 
-    let clauses = vec![clause1, clause2];
-    let undecided = vec![variable("x"), variable("p")];
+    // let clauses = vec![clause1, clause2];
+    // let undecided = vec![variable("x"), variable("p")];
 
-    for c in &clauses {
-        println!("{}", c);
-    }
+    // for c in &clauses {
+    //     println!("{}", c);
+    // }
 
-    let mut solver = Solver::new(clauses, undecided);
-    match solver.run() {
-        true => println!("\nSAT\n"),
-        false => println!("\nUNSAT\n"),
-    }
+    // let mut solver = Solver::new(clauses, undecided);
+    // match solver.run() {
+    //     true => println!("\nSAT\n"),
+    //     false => println!("\nUNSAT\n"),
+    // }
 
     // Evaluate test
+    println!("\nEVALUATE TEST\n");
     let mut model = Model::new();
     assert!(
         less(variable("x"), constant(Value::Integer(2)))
@@ -86,6 +87,7 @@ fn main() {
             == None
     );
 
+    println!("\nSETTING X = 2\n");
     model.set_value(Variable::new("x"), Value::Integer(2));
 
     assert!(
@@ -149,8 +151,8 @@ fn main() {
 
     // Trail test
     // EXAMPLE 1 FROM MCSAT-PAPER
-    // M = [[x > 1, x ↦ 1, y ↦ 0, z > 0]]
-    println!("\nTRAIL TEST\n");
+    // M = [x > 1, x ↦ 1, y ↦ 0, z > 0]
+    println!("\nTRAIL TEST, [x > 1, x ↦ 1, y ↦ 0, z > 0]\n");
     let mut trail = Trail::new();
 
     trail.push_decided_literal(Literal::new(

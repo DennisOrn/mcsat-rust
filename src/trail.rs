@@ -36,32 +36,25 @@ impl Trail {
         self.elements.pop()
     }
 
+    pub fn value(&self, literal: &Literal) -> Option<bool> {
+        println!("value with literal {}", literal);
+        let value_b = self.value_b(literal);
+        if value_b.is_none() {
+            return self.value_t(literal);
+        } else {
+            return value_b;
+        }
+    }
+
     pub fn value_b(&self, literal: &Literal) -> Option<bool> {
         println!("value_b with literal {}", literal);
 
-        // TODO: inefficient to loop each time function is called.
-        let literals: Vec<&Literal> = self
-            .elements
-            .iter()
-            .filter(|x| match x {
-                TrailElement::DecidedLiteral(_) => true,
-                TrailElement::PropagatedLiteral(_, _) => true,
-                _ => false,
-            })
-            .flat_map(|x| match x {
-                TrailElement::DecidedLiteral(l) => Some(l),
-                TrailElement::PropagatedLiteral(_, l) => Some(l),
-                _ => None,
-            })
-            .collect();
+        let literals = self.all_literals();
 
         println!("literals in trail: ");
-        for l in &literals {
-            println!("{}", l);
-        }
-
         let negated_literal = literal.negate();
         for l in literals {
+            println!("{}", l);
             if l == literal {
                 println!("{} == {}, return true\n", l, literal);
                 return Some(true);
@@ -78,57 +71,81 @@ impl Trail {
     pub fn value_t(&self, literal: &Literal) -> Option<bool> {
         println!("value_t with literal {}", literal);
 
-        // TODO: inefficient to loop each time function is called.
-        let model_assignments: Vec<&TrailElement> = self
-            .elements
-            .iter()
-            .filter(|x| match x {
-                TrailElement::ModelAssignment(_, _) => true,
-                _ => false,
-            })
-            .collect();
-
+        let model_assignments = self.all_assignments();
         let mut model_clone = self.model.clone();
-        for assignment in model_assignments {
-            if let TrailElement::ModelAssignment(var, val) = assignment {
-                println!("updating model: {} = {}", var, val);
-                model_clone.set_value(var.clone(), *val);
-                match literal.evaluate(&model_clone) {
-                    Some(true) => {
-                        println!("evaluation returned true, return true\n");
-                        return Some(true);
-                    }
-                    Some(false) => {
-                        println!("evaluation returned false, return false\n");
-                        return Some(false);
-                    }
-                    _ => (),
+
+        for (var, val) in model_assignments {
+            println!("updating model: {} = {}", var, val);
+            model_clone.set_value(var.clone(), val);
+            match literal.evaluate(&model_clone) {
+                Some(true) => {
+                    println!("evaluation returned true, return true\n");
+                    return Some(true);
                 }
-                model_clone.clear_value(var.clone());
+                Some(false) => {
+                    println!("evaluation returned false, return false\n");
+                    return Some(false);
+                }
+                _ => (),
             }
+            model_clone.clear_value(var.clone());
         }
 
         println!("undefined, return None\n");
         None
     }
 
-    // fn check_trail_element(&self, element: &TrailElement) -> bool {
-    //     match element {
-    //         TrailElement::DecidedLiteral(term) => {
-    //             match term.get() {
-    //                 ActualTerm::Boolean(_) => true,
-    //                 _ => false
-    //             }
-    //         }
-    //         TrailElement::ModelAssignment(var, val) => {
-    //             match (var.get(), val) {
-    //                 (ActualTerm::Variable(_), Value::Integer(_)) => true,
-    //                 _ => false
-    //             }
-    //         }
-    //         _ => panic!("PropagatedLiteral not implemented!")
-    //     }
-    // }
+    pub fn is_consistent(&self) -> bool {
+        for l in self.all_literals() {
+            match self.value_t(l) {
+                Some(false) => return false,
+                _ => (),
+            }
+        }
+        true
+    }
+
+    pub fn is_complete(&self) -> bool {
+        for l in self.all_literals() {
+            match self.value_t(l) {
+                Some(false) | None => return false,
+                _ => (),
+            }
+        }
+        true
+    }
+
+    fn all_literals(&self) -> Vec<&Literal> {
+        // TODO: inefficient to loop each time function is called.
+        self.elements
+            .iter()
+            .filter(|x| match x {
+                TrailElement::DecidedLiteral(_) => true,
+                TrailElement::PropagatedLiteral(_, _) => true,
+                _ => false,
+            })
+            .flat_map(|x| match x {
+                TrailElement::DecidedLiteral(l) => Some(l),
+                TrailElement::PropagatedLiteral(_, l) => Some(l),
+                _ => None,
+            })
+            .collect()
+    }
+
+    fn all_assignments(&self) -> Vec<(Variable, Value)> {
+        // TODO: inefficient to loop each time function is called.
+        self.elements
+            .iter()
+            .filter(|x| match x {
+                TrailElement::ModelAssignment(_, _) => true,
+                _ => false,
+            })
+            .flat_map(|x| match x {
+                TrailElement::ModelAssignment(var, val) => Some((var.clone(), *val)),
+                _ => None,
+            })
+            .collect()
+    }
 }
 
 #[derive(Debug)]
