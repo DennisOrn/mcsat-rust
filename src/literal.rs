@@ -1,4 +1,5 @@
 use crate::formula::formula::Formula;
+use crate::model::Model;
 use hashconsing::HConsed;
 
 #[derive(Debug, PartialEq)]
@@ -23,8 +24,8 @@ impl Literal {
         }
     }
 
-    pub fn is_negated(&self) -> bool {
-        self.is_negated
+    pub fn evaluate(&self, model: &Model) -> Option<bool> {
+        self.formula.evaluate(model)
     }
 }
 

@@ -11,6 +11,7 @@ mod types;
 use crate::clause::Clause;
 use crate::formula::formula::*;
 use crate::literal::Literal;
+use crate::model::Model;
 use crate::solver::Solver;
 use crate::term::term::*;
 use crate::trail::Trail;
@@ -55,7 +56,7 @@ fn main() {
     }
 
     // Evaluate test
-    let mut model = model::Model::new();
+    let mut model = Model::new();
     assert!(
         predicate(Less, vec![variable("x"), constant(Value::Integer(2))])
             .get()
@@ -178,6 +179,7 @@ fn main() {
     // Trail test
     // EXAMPLE 1 FROM MCSAT-PAPER
     // M = [[x > 1, x ↦ 1, y ↦ 0, z > 0]]
+    println!("\nTRAIL TEST\n");
     let mut trail = Trail::new();
 
     trail.push_decided_literal(Literal::new(

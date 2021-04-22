@@ -1,5 +1,4 @@
 use crate::clause::Clause;
-use crate::model::Model;
 use crate::state::State;
 use crate::term::term::Term;
 use crate::trail::Trail;
@@ -8,7 +7,6 @@ use hashconsing::HConsed;
 #[derive(Debug)]
 pub struct Solver {
     state: State,
-    model: Model,
     trail: Trail,
     clauses: Vec<Clause>,
     undecided: Vec<HConsed<Term>>,
@@ -18,7 +16,6 @@ impl Solver {
     pub fn new(clauses: Vec<Clause>, undecided: Vec<HConsed<Term>>) -> Solver {
         Solver {
             state: State::Search,
-            model: Model::new(),
             trail: Trail::new(),
             clauses: clauses,
             undecided: undecided,
@@ -116,8 +113,8 @@ impl std::fmt::Display for Solver {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(
             f,
-            "SOLVER\nstate:\t\t{:?}\nmodel:\t\t{:?}\ntrail:\t\t{:?}\nundecided:\t{:?}",
-            self.state, self.model, self.trail, self.undecided
+            "SOLVER\nstate:\t\t{:?}\ntrail:\t\t{:?}\nundecided:\t{:?}",
+            self.state, self.trail, self.undecided
         )
     }
 }

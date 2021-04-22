@@ -1,19 +1,20 @@
 use crate::clause::Clause;
-use crate::formula::formula::Formula;
 use crate::literal::Literal;
+use crate::model::Model;
 use crate::types::value::Value;
 use crate::types::variable::Variable;
-use hashconsing::*;
 
 #[derive(Debug)]
 pub struct Trail {
     elements: Vec<TrailElement>,
+    model: Model,
 }
 
 impl Trail {
     pub fn new() -> Trail {
         Trail {
             elements: Vec::new(),
+            model: Model::new(),
         }
     }
 
@@ -36,8 +37,10 @@ impl Trail {
     }
 
     pub fn value_b(&self, literal: &Literal) -> Option<bool> {
+        println!("value_b with literal {}", literal);
+
         // TODO: inefficient to loop each time function is called.
-        let literals = self
+        let literals: Vec<&Literal> = self
             .elements
             .iter()
             .filter(|x| match x {
@@ -49,49 +52,64 @@ impl Trail {
                 TrailElement::DecidedLiteral(l) => Some(l),
                 TrailElement::PropagatedLiteral(_, l) => Some(l),
                 _ => None,
-            });
+            })
+            .collect();
+
+        println!("literals in trail: ");
+        for l in &literals {
+            println!("{}", l);
+        }
 
         let negated_literal = literal.negate();
         for l in literals {
             if l == literal {
+                println!("{} == {}, return true\n", l, literal);
                 return Some(true);
             } else if l == &negated_literal {
+                println!("{} == {}, return false\n", l, negated_literal);
                 return Some(false);
             }
         }
 
+        println!("no match, return None\n");
         None
     }
 
     pub fn value_t(&self, literal: &Literal) -> Option<bool> {
-        /* PSEUDO CODE
-        fn value_t(formula) -> Option<bool> {
-            for each model assignment (MA):
-                replace variable in formula with the MA
-                evaluate
-                if true      => return true
-                if false     => return false
-                if undefined => continue loop
-            return None
-        }
-        EXAMPLE:
-        formula: x > 0
-        MA: x → 1
-        formula and MA implies that "1 > 0"
-        evaluates to true: return Some(true)
-        */
+        println!("value_t with literal {}", literal);
 
         // TODO: inefficient to loop each time function is called.
-        let model_assignments = self.elements.iter().filter(|x| match x {
-            TrailElement::ModelAssignment(_, _) => true,
-            _ => false,
-        });
+        let model_assignments: Vec<&TrailElement> = self
+            .elements
+            .iter()
+            .filter(|x| match x {
+                TrailElement::ModelAssignment(_, _) => true,
+                _ => false,
+            })
+            .collect();
 
+        let mut model_clone = self.model.clone();
         for assignment in model_assignments {
-            println!("{}", assignment);
+            if let TrailElement::ModelAssignment(var, val) = assignment {
+                println!("updating model: {} = {}", var, val);
+                model_clone.set_value(var.clone(), *val);
+                match literal.evaluate(&model_clone) {
+                    Some(true) => {
+                        println!("evaluation returned true, return true\n");
+                        return Some(true);
+                    }
+                    Some(false) => {
+                        println!("evaluation returned false, return false\n");
+                        return Some(false);
+                    }
+                    _ => (),
+                }
+                model_clone.clear_value(var.clone());
+            }
         }
 
-        None // TODO: return correct value
+        println!("undefined, return None\n");
+        None
     }
 
     // fn check_trail_element(&self, element: &TrailElement) -> bool {
