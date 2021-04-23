@@ -195,7 +195,6 @@ fn test_evaluate_function_defined_variable() {
 fn test_trail_value_functions() {
     // EXAMPLE 1 FROM MCSAT-PAPER
     // M = [x > 1, x ↦ 1, y ↦ 0, z > 0]
-    println!("\nTRAIL TEST, [x > 1, x ↦ 1, y ↦ 0, z > 0]\n");
     let mut trail = Trail::new();
     trail.push_decided_literal(Literal::new(
         greater(variable("x"), constant(Value::Integer(0))),

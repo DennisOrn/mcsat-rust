@@ -12,14 +12,8 @@ impl Variable {
     }
     pub fn evaluate(&self, model: &Model) -> Option<Value> {
         match model.get_value(self) {
-            Some(value) => {
-                println!("{}", value);
-                Some(value.clone())
-            }
-            None => {
-                println!("None");
-                None
-            }
+            Some(value) => Some(value.clone()),
+            None => None,
         }
     }
 }

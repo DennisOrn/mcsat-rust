@@ -39,7 +39,6 @@ impl Trail {
     }
 
     pub fn value(&self, literal: &Literal) -> Option<bool> {
-        println!("value with literal {}", literal);
         let value_b = self.value_b(literal);
         if value_b.is_none() {
             return self.value_t(literal);
@@ -49,30 +48,19 @@ impl Trail {
     }
 
     pub fn value_b(&self, literal: &Literal) -> Option<bool> {
-        println!("value_b with literal {}", literal);
-
         let literals = self.all_literals();
         let negated_literal = literal.negate();
-
-        println!("literals in trail: ");
         for l in literals {
-            println!("{}", l);
             if l == literal {
-                println!("{} == {}, return true\n", l, literal);
                 return Some(true);
             } else if l == &negated_literal {
-                println!("{} == {}, return false\n", l, negated_literal);
                 return Some(false);
             }
         }
-
-        println!("no match, return None\n");
         None
     }
 
     pub fn value_t(&self, literal: &Literal) -> Option<bool> {
-        println!("value_t with literal {}", literal);
-
         // let model_assignments = self.all_assignments();
         // let mut model_clone = self.model.clone();
 

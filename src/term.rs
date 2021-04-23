@@ -14,11 +14,6 @@ pub mod term {
         Function(Function, Vec<HConsed<Term>>), // TODO: Vec or just two args?
     }
     impl Term {
-        // pub fn evaluate<'a>(&self, model: &'a Model) -> Option<&'a Value> {
-        //     println!("eval term\t{}", self);
-        //     let value = model.get_value(self);
-        //     value
-        // }
         pub fn evaluate(&self, model: &Model) -> Option<Value> {
             match self {
                 Term::Variable(variable) => variable.evaluate(model),

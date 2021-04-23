@@ -14,57 +14,6 @@ impl Model {
         }
     }
 
-    // pub fn evaluate(&self, e: &Expr) -> Option<bool> {
-    //     // println!("EVAL: {}", e);
-    //     match e.get() {
-    //         Expression::Term(term) => self.evaluate_term(term),
-    //         Expression::Formula(formula) => self.evaluate_formula(formula)
-    //     }
-    // }
-
-    // fn evaluate_term(&self, t: &Term) -> Option<bool> {
-    //     match t {
-    //         Term::Boolean(_) => {
-    //             if let Some(value) = self.map.get(&t) {
-    //                 if let Value::Bool(b) = value {
-    //                     return Some(*b)
-    //                 }
-    //                 return None
-    //             }
-    //             return None
-    //         }
-    //         Term::True() => {
-    //             Some(true)
-    //         }
-    //         Term::False() => {
-    //             Some(false)
-    //         }
-    //         _ => panic!()
-    //     }
-    // }
-
-    // fn evaluate_formula(&self, f: &Formula) -> Option<bool> {
-    //     match f {
-    //         Formula::Negation(e) => {
-    //             match self.evaluate(e) {
-    //                 Some(true) => Some(false),
-    //                 Some(false) => Some(true),
-    //                 _ => None
-    //             }
-    //         }
-    //         Formula::Disjunction(lhs, rhs) => {
-    //             match (self.evaluate(lhs), self.evaluate(rhs)) { // TODO: evaluate lhs first and check result
-    //                 (Some(true), _) => return Some(true),
-    //                 (_, Some(true)) => return Some(true),
-    //                 (None, _) => return None,
-    //                 (_, None) => return None,
-    //                 (_, _) => return Some(false)
-    //             }
-    //         }
-    //         _ => panic!()
-    //     }
-    // }
-
     pub fn set_value(&mut self, t: Variable, value: Value) {
         // assert!(self.check_term_value(&t, &value));
         self.map.insert(t, value);

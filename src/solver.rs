@@ -83,30 +83,6 @@ impl Solver {
             // }
         }
     }
-
-    // fn is_consistent(&self) -> bool {
-    //     println!("\nCHECK: is_consistent");
-    //     for t in &self.clauses {
-    //         match self.model.evaluate(&t) {
-    //             Some(false) => { println!("{}: false", t); return false }
-    //             Some(true) => { println!("{}: true", t); }
-    //             None => { println!("{}: None", t); }
-    //         }
-    //     }
-    //     true
-    // }
-
-    // fn is_complete(&self) -> bool {
-    //     println!("\nCHECK: is_complete");
-    //     for t in &self.clauses {
-    //         match self.model.evaluate(&t) {
-    //             Some(false) => { println!("{}: false", t); return false }
-    //             Some(true) => { println!("{}: true", t); }
-    //             None => { println!("{}: None", t); return false }
-    //         }
-    //     }
-    //     true
-    // }
 }
 
 impl std::fmt::Display for Solver {
