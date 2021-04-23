@@ -1,6 +1,5 @@
 use crate::model::Model;
-use crate::term::term::Term;
-use hashconsing::HConsed;
+use crate::types::value::Value;
 
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
 pub enum Predicate {
@@ -12,29 +11,14 @@ pub enum Predicate {
     Equal,
 }
 impl Predicate {
-    pub fn evaluate(&self, model: &Model, args: &Vec<HConsed<Term>>) -> Option<bool> {
+    pub fn evaluate(&self, model: &Model, args: &Vec<Value>) -> bool {
+        assert!(args.len() == 2);
         match self {
-            // TODO: do lazy evaluation.
-            Predicate::Less => match (args[0].evaluate(model), args[1].evaluate(model)) {
-                (None, _) | (_, None) => None,
-                (Some(lhs), Some(rhs)) => Some(lhs < rhs),
-            },
-            Predicate::LessEqual => match (args[0].evaluate(model), args[1].evaluate(model)) {
-                (None, _) | (_, None) => None,
-                (Some(lhs), Some(rhs)) => Some(lhs <= rhs),
-            },
-            Predicate::Greater => match (args[0].evaluate(model), args[1].evaluate(model)) {
-                (None, _) | (_, None) => None,
-                (Some(lhs), Some(rhs)) => Some(lhs > rhs),
-            },
-            Predicate::GreaterEqual => match (args[0].evaluate(model), args[1].evaluate(model)) {
-                (None, _) | (_, None) => None,
-                (Some(lhs), Some(rhs)) => Some(lhs >= rhs),
-            },
-            Predicate::Equal => match (args[0].evaluate(model), args[1].evaluate(model)) {
-                (None, _) | (_, None) => None,
-                (Some(lhs), Some(rhs)) => Some(lhs == rhs),
-            },
+            Predicate::Less => args[0] < args[1],
+            Predicate::LessEqual => args[0] <= args[1],
+            Predicate::Greater => args[0] > args[1],
+            Predicate::GreaterEqual => args[0] >= args[1],
+            Predicate::Equal => args[0] == args[1],
         }
     }
 }

@@ -35,6 +35,7 @@ impl Trail {
 
     pub fn pop(&mut self) -> Option<TrailElement> {
         self.elements.pop()
+        // TODO: remove from model if model assignment
     }
 
     pub fn value(&self, literal: &Literal) -> Option<bool> {

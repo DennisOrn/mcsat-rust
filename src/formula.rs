@@ -3,6 +3,7 @@ pub mod formula {
     use crate::model::Model;
     use crate::term::term::Term;
     use crate::types::predicate::Predicate;
+    use crate::types::value::Value;
     use hashconsing::*;
 
     #[derive(Debug, Hash, Clone, PartialEq, Eq)]
@@ -14,19 +15,16 @@ pub mod formula {
     impl Formula {
         pub fn evaluate(&self, model: &Model) -> Option<bool> {
             match self {
-                Formula::True => {
-                    println!("eval formula\t{}: true\n", self);
-                    Some(true)
-                }
-                Formula::False => {
-                    println!("eval formula\t{}: false\n", self);
-                    Some(false)
-                }
+                Formula::True => Some(true),
+                Formula::False => Some(false),
                 Formula::Predicate(predicate, args) => {
-                    println!("eval formula\t{}", self);
-                    let res = predicate.evaluate(model, args);
-                    println!("eval formula\t{}: {:?}\n", self, res);
-                    res
+                    // TODO: lazy evaluation?
+                    let values: Vec<Value> = args.iter().flat_map(|x| x.evaluate(model)).collect();
+                    if values.len() == args.len() {
+                        return Some(predicate.evaluate(model, &values));
+                    } else {
+                        return None;
+                    }
                 }
             }
         }

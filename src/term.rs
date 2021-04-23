@@ -21,19 +21,16 @@ pub mod term {
         // }
         pub fn evaluate(&self, model: &Model) -> Option<Value> {
             match self {
-                Term::Variable(variable) => {
-                    print!("eval term\t{}: ", self);
-                    variable.evaluate(model)
-                }
-                Term::Constant(constant) => {
-                    print!("eval term\t{}: ", self);
-                    Some(constant.evaluate())
-                }
+                Term::Variable(variable) => variable.evaluate(model),
+                Term::Constant(constant) => Some(constant.evaluate()),
                 Term::Function(function, args) => {
-                    println!("eval term\t{}", self);
-                    let res = function.evaluate(model, args);
-                    println!("eval term\t{}: {:?}", self, res);
-                    res
+                    // TODO: lazy evaluation?
+                    let values: Vec<Value> = args.iter().flat_map(|x| x.evaluate(model)).collect();
+                    if values.len() == args.len() {
+                        return Some(function.evaluate(model, &values));
+                    } else {
+                        return None;
+                    }
                 }
             }
         }
