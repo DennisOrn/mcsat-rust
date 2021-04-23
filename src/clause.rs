@@ -1,5 +1,4 @@
 use crate::literal::Literal;
-use hashconsing::HConsed;
 
 #[derive(Debug)]
 pub struct Clause {

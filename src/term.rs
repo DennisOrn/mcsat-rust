@@ -22,7 +22,7 @@ pub mod term {
                     // TODO: lazy evaluation?
                     let values: Vec<Value> = args.iter().flat_map(|x| x.evaluate(model)).collect();
                     if values.len() == args.len() {
-                        return Some(function.evaluate(model, &values));
+                        return Some(function.evaluate(&values));
                     } else {
                         return None;
                     }

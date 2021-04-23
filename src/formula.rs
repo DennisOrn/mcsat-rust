@@ -21,7 +21,7 @@ pub mod formula {
                     // TODO: lazy evaluation?
                     let values: Vec<Value> = args.iter().flat_map(|x| x.evaluate(model)).collect();
                     if values.len() == args.len() {
-                        return Some(predicate.evaluate(model, &values));
+                        return Some(predicate.evaluate(&values));
                     } else {
                         return None;
                     }
@@ -73,5 +73,19 @@ pub mod formula {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::formula::formula::{f, t};
+    use crate::model::Model;
+
+    #[test]
+    fn test_evaluate_true_and_false() {
+        let model = Model::new();
+
+        assert_eq!(t().evaluate(&model), Some(true));
+        assert_eq!(f().evaluate(&model), Some(false));
     }
 }

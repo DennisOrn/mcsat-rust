@@ -18,3 +18,17 @@ impl std::fmt::Display for Constant {
         write!(fmt, "{}", self.value)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::types::constant::Constant;
+    use crate::types::value::Value;
+
+    #[test]
+    fn test_evaluate_constant() {
+        assert_eq!(
+            Constant::new(Value::Integer(5)).evaluate(),
+            Value::Integer(5)
+        );
+    }
+}

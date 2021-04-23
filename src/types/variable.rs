@@ -23,3 +23,25 @@ impl std::fmt::Display for Variable {
         write!(fmt, "{}", self.id)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::model::Model;
+    use crate::types::value::Value;
+    use crate::types::variable::Variable;
+
+    #[test]
+    fn test_evaluate_undefined_variable() {
+        let model = Model::new();
+
+        assert_eq!(Variable::new("x").evaluate(&model), None);
+    }
+
+    #[test]
+    fn test_evaluate_defined_variable() {
+        let mut model = Model::new();
+        model.set_value(Variable::new("x"), Value::Integer(5));
+
+        assert_eq!(Variable::new("x").evaluate(&model), Some(Value::Integer(5)));
+    }
+}

@@ -38,3 +38,16 @@ impl std::fmt::Display for Value {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::model::Model;
+    use crate::term::term::{constant, minus, plus};
+    use crate::types::value::Value;
+
+    #[test]
+    fn test_value_addition_and_subtraction() {
+        assert_eq!(Value::Integer(1) + Value::Integer(2), Value::Integer(3));
+        assert_eq!(Value::Integer(2) - Value::Integer(1), Value::Integer(1));
+    }
+}

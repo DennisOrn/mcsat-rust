@@ -147,3 +147,71 @@ impl std::fmt::Display for TrailElement {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::formula::formula::greater;
+    use crate::literal::Literal;
+    use crate::term::term::{constant, variable};
+    use crate::trail::Trail;
+    use crate::types::value::Value;
+    use crate::types::variable::Variable;
+
+    #[test]
+    fn test_trail_value_functions() {
+        // EXAMPLE 1 FROM MCSAT-PAPER
+        // M = [x > 1, x ↦ 1, y ↦ 0, z > 0]
+        let mut trail = Trail::new();
+        trail.push_decided_literal(Literal::new(
+            greater(variable("x"), constant(Value::Integer(0))),
+            false,
+        ));
+        trail.push_model_assignment(Variable::new("x"), Value::Integer(1));
+        trail.push_model_assignment(Variable::new("y"), Value::Integer(0));
+        trail.push_decided_literal(Literal::new(
+            greater(variable("z"), constant(Value::Integer(0))),
+            false,
+        ));
+
+        assert_eq!(
+            trail.value_t(&Literal::new(
+                greater(variable("x"), constant(Value::Integer(0))),
+                false
+            )),
+            Some(true),
+            "expected: value_t(x > 0) == true"
+        );
+        assert_eq!(
+            trail.value_b(&Literal::new(
+                greater(variable("x"), constant(Value::Integer(0))),
+                false
+            )),
+            Some(true),
+            "expected: value_b(x > 0) == true"
+        );
+        assert_eq!(
+            trail.value_t(&Literal::new(
+                greater(variable("x"), constant(Value::Integer(1))),
+                false
+            )),
+            Some(false),
+            "expected: value_t(x > 1) == false"
+        );
+        assert_eq!(
+            trail.value_t(&Literal::new(
+                greater(variable("z"), constant(Value::Integer(0))),
+                false
+            )),
+            None,
+            "expected: value_t(z > 0) == None"
+        );
+        assert_eq!(
+            trail.value_b(&Literal::new(
+                greater(variable("z"), constant(Value::Integer(0))),
+                false
+            )),
+            Some(true),
+            "expected: value_b(z > 0) == true"
+        );
+    }
+}

@@ -55,59 +55,6 @@ fn main() {
 }
 
 #[test]
-fn test_evaluate_undefined_variable() {
-    let model = Model::new();
-
-    assert_eq!(
-        less(variable("x"), constant(Value::Integer(2))).evaluate(&model),
-        None
-    );
-    assert_eq!(
-        less_equal(variable("x"), constant(Value::Integer(2))).evaluate(&model),
-        None
-    );
-    assert_eq!(
-        greater(variable("x"), constant(Value::Integer(2))).evaluate(&model),
-        None
-    );
-    assert_eq!(
-        greater_equal(variable("x"), constant(Value::Integer(2))).evaluate(&model),
-        None
-    );
-    assert_eq!(
-        equal(variable("x"), constant(Value::Integer(2))).evaluate(&model),
-        None
-    );
-}
-
-#[test]
-fn test_evaluate_defined_variable() {
-    let mut model = Model::new();
-    model.set_value(Variable::new("x"), Value::Integer(2));
-
-    assert_eq!(
-        less(variable("x"), constant(Value::Integer(2))).evaluate(&model),
-        Some(false)
-    );
-    assert_eq!(
-        less_equal(variable("x"), constant(Value::Integer(2))).evaluate(&model),
-        Some(true)
-    );
-    assert_eq!(
-        greater(variable("x"), constant(Value::Integer(2))).evaluate(&model),
-        Some(false)
-    );
-    assert_eq!(
-        greater_equal(variable("x"), constant(Value::Integer(2))).evaluate(&model),
-        Some(true)
-    );
-    assert_eq!(
-        equal(variable("x"), constant(Value::Integer(2))).evaluate(&model),
-        Some(true)
-    );
-}
-
-#[test]
 fn test_evaluate_literal() {
     let model = Model::new();
 
@@ -188,63 +135,5 @@ fn test_evaluate_function_defined_variable() {
         )
         .evaluate(&model),
         Some(true)
-    );
-}
-
-#[test]
-fn test_trail_value_functions() {
-    // EXAMPLE 1 FROM MCSAT-PAPER
-    // M = [x > 1, x ↦ 1, y ↦ 0, z > 0]
-    let mut trail = Trail::new();
-    trail.push_decided_literal(Literal::new(
-        greater(variable("x"), constant(Value::Integer(0))),
-        false,
-    ));
-    trail.push_model_assignment(Variable::new("x"), Value::Integer(1));
-    trail.push_model_assignment(Variable::new("y"), Value::Integer(0));
-    trail.push_decided_literal(Literal::new(
-        greater(variable("z"), constant(Value::Integer(0))),
-        false,
-    ));
-
-    assert_eq!(
-        trail.value_t(&Literal::new(
-            greater(variable("x"), constant(Value::Integer(0))),
-            false
-        )),
-        Some(true),
-        "expected: value_t(x > 0) == true"
-    );
-    assert_eq!(
-        trail.value_b(&Literal::new(
-            greater(variable("x"), constant(Value::Integer(0))),
-            false
-        )),
-        Some(true),
-        "expected: value_b(x > 0) == true"
-    );
-    assert_eq!(
-        trail.value_t(&Literal::new(
-            greater(variable("x"), constant(Value::Integer(1))),
-            false
-        )),
-        Some(false),
-        "expected: value_t(x > 1) == false"
-    );
-    assert_eq!(
-        trail.value_t(&Literal::new(
-            greater(variable("z"), constant(Value::Integer(0))),
-            false
-        )),
-        None,
-        "expected: value_t(z > 0) == None"
-    );
-    assert_eq!(
-        trail.value_b(&Literal::new(
-            greater(variable("z"), constant(Value::Integer(0))),
-            false
-        )),
-        Some(true),
-        "expected: value_b(z > 0) == true"
     );
 }

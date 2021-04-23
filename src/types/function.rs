@@ -1,6 +1,4 @@
-use crate::model::Model;
 use crate::types::value::Value;
-use hashconsing::HConsed;
 
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
 pub enum Function {
@@ -9,7 +7,7 @@ pub enum Function {
     Minus,
 }
 impl Function {
-    pub fn evaluate(&self, model: &Model, args: &Vec<Value>) -> Value {
+    pub fn evaluate(&self, args: &Vec<Value>) -> Value {
         assert!(args.len() == 2);
         match self {
             Function::Plus => args[0] + args[1],
@@ -24,5 +22,26 @@ impl std::fmt::Display for Function {
             Function::Plus => write!(fmt, "+"),
             Function::Minus => write!(fmt, "-"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::model::Model;
+    use crate::term::term::{constant, minus, plus};
+    use crate::types::value::Value;
+
+    #[test]
+    fn test_function_plus_and_minus() {
+        let model = Model::new();
+
+        assert_eq!(
+            plus(constant(Value::Integer(1)), constant(Value::Integer(2))).evaluate(&model),
+            Some(Value::Integer(3))
+        );
+        assert_eq!(
+            minus(constant(Value::Integer(2)), constant(Value::Integer(1))).evaluate(&model),
+            Some(Value::Integer(1))
+        );
     }
 }
