@@ -10,10 +10,6 @@ impl Add<Value> for Value {
     fn add(self, other: Value) -> Value {
         match (self, other) {
             (Value::Integer(lhs), Value::Integer(rhs)) => Value::Integer(lhs + rhs),
-            _ => panic!(
-                "Could not perform addition on values {} and {}",
-                self, other
-            ),
         }
     }
 }
@@ -23,10 +19,6 @@ impl Sub<Value> for Value {
     fn sub(self, other: Value) -> Value {
         match (self, other) {
             (Value::Integer(lhs), Value::Integer(rhs)) => Value::Integer(lhs - rhs),
-            _ => panic!(
-                "Could not perform subtraction on values {} and {}",
-                self, other
-            ),
         }
     }
 }
@@ -41,8 +33,6 @@ impl std::fmt::Display for Value {
 
 #[cfg(test)]
 mod tests {
-    use crate::model::Model;
-    use crate::term::term::{constant, minus, plus};
     use crate::types::value::Value;
 
     #[test]

@@ -26,12 +26,29 @@ impl Model {
     pub fn clear_value(&mut self, t: Variable) {
         self.map.remove(&t);
     }
+}
 
-    // fn check_term_value(&self, t: &Term, value: &Value) -> bool {
-    //     match (t, value) {
-    //         (Term::Boolean(_), Value::Bool(_)) => true,
-    //         (Term::Variable(_), Value::Integer(_)) => true,
-    //         (_, _) => false
-    //     }
-    // }
+#[cfg(test)]
+mod tests {
+    use crate::model::Model;
+    use crate::types::value::Value;
+    use crate::types::variable::Variable;
+
+    #[test]
+    fn test_model() {
+        let mut model = Model::new();
+
+        assert_eq!(model.get_value(&Variable::new("x")), None);
+
+        model.set_value(Variable::new("x"), Value::Integer(5));
+
+        assert_eq!(
+            model.get_value(&Variable::new("x")),
+            Some(&Value::Integer(5))
+        );
+
+        model.clear_value(Variable::new("x"));
+
+        assert_eq!(model.get_value(&Variable::new("x")), None);
+    }
 }
