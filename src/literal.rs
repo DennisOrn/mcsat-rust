@@ -2,7 +2,7 @@ use crate::formula::formula::Formula;
 use crate::model::Model;
 use hashconsing::HConsed;
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Literal {
     // TODO: should literals be hashconsed?
     formula: HConsed<Formula>,

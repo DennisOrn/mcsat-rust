@@ -1,7 +1,9 @@
 use crate::clause::Clause;
+use crate::literal::Literal;
 use crate::state::State;
 use crate::term::term::Term;
 use crate::trail::Trail;
+use crate::types::variable::Variable;
 use hashconsing::HConsed;
 
 #[derive(Debug)]
@@ -9,11 +11,11 @@ pub struct Solver {
     state: State,
     trail: Trail,
     clauses: Vec<Clause>,
-    undecided: Vec<HConsed<Term>>,
+    undecided: Vec<Variable>,
 }
 
 impl Solver {
-    pub fn new(clauses: Vec<Clause>, undecided: Vec<HConsed<Term>>) -> Solver {
+    pub fn new(clauses: Vec<Clause>, undecided: Vec<Variable>) -> Solver {
         Solver {
             state: State::Search,
             trail: Trail::new(),

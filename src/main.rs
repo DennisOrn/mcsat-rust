@@ -6,6 +6,7 @@ mod solver;
 mod state;
 mod term;
 mod trail;
+mod trail_element;
 mod types;
 
 // use crate::clause::Clause;

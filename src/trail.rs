@@ -1,6 +1,7 @@
 use crate::clause::Clause;
 use crate::literal::Literal;
 use crate::model::Model;
+use crate::trail_element::TrailElement;
 use crate::types::value::Value;
 use crate::types::variable::Variable;
 
@@ -18,19 +19,22 @@ impl Trail {
         }
     }
 
-    pub fn push_decided_literal(&mut self, literal: Literal) {
-        self.elements.push(TrailElement::DecidedLiteral(literal))
-    }
-
-    pub fn push_propagated_literal(&mut self, clause: Clause, literal: Literal) {
+    pub fn push_decided_literal(&mut self, literal: &Literal) {
         self.elements
-            .push(TrailElement::PropagatedLiteral(clause, literal))
+            .push(TrailElement::DecidedLiteral(literal.clone()))
     }
 
-    pub fn push_model_assignment(&mut self, variable: Variable, value: Value) {
+    pub fn push_propagated_literal(&mut self, clause: &Clause, literal: &Literal) {
+        self.elements.push(TrailElement::PropagatedLiteral(
+            clause.clone(),
+            literal.clone(),
+        ))
+    }
+
+    pub fn push_model_assignment(&mut self, variable: &Variable, value: Value) {
         self.elements
             .push(TrailElement::ModelAssignment(variable.clone(), value));
-        self.model.set_value(variable, value);
+        self.model.set_value(variable.clone(), value);
     }
 
     pub fn pop(&mut self) -> Option<TrailElement> {
@@ -118,34 +122,6 @@ impl Trail {
             })
             .collect()
     }
-
-    // fn all_assignments(&self) -> Vec<(Variable, Value)> {
-    //     // TODO: inefficient to loop each time function is called.
-    //     self.elements
-    //         .iter()
-    //         .flat_map(|x| match x {
-    //             TrailElement::ModelAssignment(var, val) => Some((var.clone(), *val)),
-    //             _ => None,
-    //         })
-    //         .collect()
-    // }
-}
-
-#[derive(Debug)]
-pub enum TrailElement {
-    DecidedLiteral(Literal),
-    PropagatedLiteral(Clause, Literal),
-    ModelAssignment(Variable, Value), // TODO: should Variable be HConsed?
-}
-
-impl std::fmt::Display for TrailElement {
-    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            TrailElement::DecidedLiteral(f) => write!(fmt, "{}", f),
-            TrailElement::PropagatedLiteral(c, f) => write!(fmt, "{} → {}", c, f),
-            TrailElement::ModelAssignment(var, val) => write!(fmt, "{} ↦ {}", var, val),
-        }
-    }
 }
 
 #[cfg(test)]
@@ -162,13 +138,13 @@ mod tests {
         // EXAMPLE 1 FROM MCSAT-PAPER
         // M = [x > 1, x ↦ 1, y ↦ 0, z > 0]
         let mut trail = Trail::new();
-        trail.push_decided_literal(Literal::new(
+        trail.push_decided_literal(&Literal::new(
             greater(variable("x"), constant(Value::Integer(0))),
             false,
         ));
-        trail.push_model_assignment(Variable::new("x"), Value::Integer(1));
-        trail.push_model_assignment(Variable::new("y"), Value::Integer(0));
-        trail.push_decided_literal(Literal::new(
+        trail.push_model_assignment(&Variable::new("x"), Value::Integer(1));
+        trail.push_model_assignment(&Variable::new("y"), Value::Integer(0));
+        trail.push_decided_literal(&Literal::new(
             greater(variable("z"), constant(Value::Integer(0))),
             false,
         ));
@@ -213,5 +189,15 @@ mod tests {
             Some(true),
             "expected: value_b(z > 0) == true"
         );
+    }
+
+    #[test]
+    fn test_is_consistent() {
+        unimplemented!();
+    }
+
+    #[test]
+    fn test_is_complete() {
+        unimplemented!();
     }
 }
