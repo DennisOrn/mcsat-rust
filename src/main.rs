@@ -10,7 +10,7 @@ mod trail_element; // TODO: underscore?
 mod types;
 
 use crate::clause::Clause;
-use crate::formula::formula::{equal, greater, greater_equal, less, less_equal};
+use crate::formula::formula::{equal, f, greater, greater_equal, less, less_equal, t};
 use crate::literal::Literal;
 use crate::solver::Solver;
 use crate::term::term::{constant, minus, plus, variable};
@@ -45,6 +45,10 @@ fn main() {
     // )]);
     // let clauses = vec![clause1, clause2];
     // let undecided = vec![Variable::new("x"), Variable::new("y")];
+
+    // let clause1 = Clause::new(vec![Literal::new(f(), false)]);
+    // let clauses = vec![clause1];
+    // let undecided = vec![];
 
     for c in &clauses {
         println!("{}", c);

@@ -35,14 +35,14 @@ impl Solver {
             self.state = State::Search;
             for clause in &self.clauses {
                 print!("evaluate {}: ", clause);
-                match clause.evaluate(self.trail.get_model()) {
+                match self.trail.value_clause(clause) {
                     Some(true) => println!("{}", "true".green()),
                     Some(false) => {
                         println!("{}", "false".red());
                         self.state = State::Conflict(clause.clone());
                         break;
                     }
-                    None => println!("{}", "???".yellow()),
+                    None => println!("{}", "undef".yellow()),
                 }
             }
 

@@ -39,6 +39,7 @@ impl Trail {
 
     pub fn pop(&mut self) -> Option<TrailElement> {
         let removed_element = self.elements.pop();
+
         // If model assignment: clear the variable from the model.
         if let Some(TrailElement::ModelAssignment(var, _)) = &removed_element {
             self.model.clear_value(var.clone());
@@ -46,7 +47,24 @@ impl Trail {
         removed_element
     }
 
-    pub fn value(&self, literal: &Literal) -> Option<bool> {
+    pub fn value_clause(&self, clause: &Clause) -> Option<bool> {
+        let mut found_undefined_literal = false;
+        for literal in clause.get_literals() {
+            match self.value_literal(literal) {
+                Some(true) => return Some(true),
+                None => found_undefined_literal = true,
+                _ => (),
+            }
+        }
+
+        if found_undefined_literal {
+            None
+        } else {
+            Some(false)
+        }
+    }
+
+    pub fn value_literal(&self, literal: &Literal) -> Option<bool> {
         let value_b = self.value_b(literal);
         if value_b.is_none() {
             return self.value_t(literal);
@@ -115,6 +133,19 @@ impl Trail {
         true
     }
 
+    pub fn is_satisfied(&self, clauses: &Vec<Clause>) -> bool {
+        if self.is_complete() == false {
+            return false;
+        }
+        for clause in clauses {
+            match self.value_clause(clause) {
+                Some(false) | None => return false,
+                _ => (),
+            }
+        }
+        true
+    }
+
     fn all_literals(&self) -> Vec<&Literal> {
         // TODO: inefficient to loop each time function is called.
         self.elements
@@ -125,10 +156,6 @@ impl Trail {
                 _ => None,
             })
             .collect()
-    }
-
-    pub fn get_model(&self) -> &Model {
-        &self.model
     }
 }
 
@@ -151,7 +178,7 @@ mod tests {
     use crate::types::variable::Variable;
 
     #[test]
-    fn test_trail_push_pop() {
+    fn test_push_pop() {
         let mut trail = Trail::new();
         let x = Variable::new("x");
         let l = Literal::new(t(), false);
@@ -193,7 +220,7 @@ mod tests {
     }
 
     #[test]
-    fn test_trail_value_functions() {
+    fn test_literal_value() {
         // EXAMPLE 1 FROM MCSAT-PAPER
         // M = [x > 1, x ↦ 1, y ↦ 0, z > 0]
         let mut trail = Trail::new();
@@ -251,12 +278,22 @@ mod tests {
     }
 
     #[test]
+    fn test_clause_value() {
+        unimplemented!();
+    }
+
+    #[test]
     fn test_is_consistent() {
         unimplemented!();
     }
 
     #[test]
     fn test_is_complete() {
+        unimplemented!();
+    }
+
+    #[test]
+    fn test_is_satisfied() {
         unimplemented!();
     }
 }

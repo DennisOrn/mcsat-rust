@@ -11,21 +11,8 @@ impl Clause {
         Clause { literals: literals }
     }
 
-    pub fn evaluate(&self, model: &Model) -> Option<bool> {
-        let mut found_undefined_literal = false;
-        for literal in &self.literals {
-            match literal.evaluate(model) {
-                Some(true) => return Some(true),
-                None => found_undefined_literal = true,
-                _ => (),
-            }
-        }
-
-        if found_undefined_literal {
-            None
-        } else {
-            Some(false)
-        }
+    pub fn get_literals(&self) -> &Vec<Literal> {
+        &self.literals
     }
 }
 
@@ -45,30 +32,31 @@ mod tests {
     use crate::model::Model;
     use crate::term::term::variable;
 
-    #[test]
-    fn test_evaluate_clause() {
-        let model = Model::new();
+    // TODO: move this to trail
+    // #[test]
+    // fn test_evaluate_clause() {
+    //     let model = Model::new();
 
-        assert_eq!(
-            Clause::new(vec![Literal::new(t(), false)]).evaluate(&model),
-            Some(true)
-        );
-        assert_eq!(
-            Clause::new(vec![Literal::new(f(), false)]).evaluate(&model),
-            Some(false)
-        );
-        assert_eq!(
-            Clause::new(vec![Literal::new(t(), false), Literal::new(f(), false)]).evaluate(&model),
-            Some(true)
-        );
-        assert_eq!(
-            Clause::new(vec![
-                Literal::new(f(), false),
-                Literal::new(equal(variable("x"), variable("y")), false),
-                Literal::new(f(), false),
-            ])
-            .evaluate(&model),
-            None
-        );
-    }
+    //     assert_eq!(
+    //         Clause::new(vec![Literal::new(t(), false)]).evaluate(&model),
+    //         Some(true)
+    //     );
+    //     assert_eq!(
+    //         Clause::new(vec![Literal::new(f(), false)]).evaluate(&model),
+    //         Some(false)
+    //     );
+    //     assert_eq!(
+    //         Clause::new(vec![Literal::new(t(), false), Literal::new(f(), false)]).evaluate(&model),
+    //         Some(true)
+    //     );
+    //     assert_eq!(
+    //         Clause::new(vec![
+    //             Literal::new(f(), false),
+    //             Literal::new(equal(variable("x"), variable("y")), false),
+    //             Literal::new(f(), false),
+    //         ])
+    //         .evaluate(&model),
+    //         None
+    //     );
+    // }
 }
