@@ -126,6 +126,17 @@ impl Trail {
             })
             .collect()
     }
+
+    pub fn get_model(&self) -> &Model {
+        &self.model
+    }
+}
+
+impl std::fmt::Display for Trail {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let elements: Vec<String> = self.elements.iter().map(|x| x.to_string()).collect();
+        write!(fmt, "[{}]", elements.join(", "))
+    }
 }
 
 #[cfg(test)]

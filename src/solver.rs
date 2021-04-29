@@ -3,8 +3,12 @@ use crate::literal::Literal;
 use crate::state::State;
 use crate::term::term::Term;
 use crate::trail::Trail;
+use crate::trail_element::TrailElement;
+use crate::types::value::Value;
 use crate::types::variable::Variable;
+use colored::*;
 use hashconsing::HConsed;
+use rand::Rng;
 
 #[derive(Debug)]
 pub struct Solver {
@@ -25,74 +29,61 @@ impl Solver {
     }
 
     pub fn run(&mut self) -> bool {
+        let mut rng = rand::thread_rng();
         loop {
-            println!("\n{}", self);
-            return false; // TODO: REMOVE THIS
+            // Check which state we are in by evaluating clauses.
+            self.state = State::Search;
+            for clause in &self.clauses {
+                print!("evaluate {}: ", clause);
+                match clause.evaluate(self.trail.get_model()) {
+                    Some(true) => println!("{}", "true".green()),
+                    Some(false) => {
+                        println!("{}", "false".red());
+                        self.state = State::Conflict(clause.clone());
+                        break;
+                    }
+                    None => println!("{}", "???".yellow()),
+                }
+            }
 
-            // assert!(self.is_consistent());
+            println!("{}", self);
 
-            // while !self.is_consistent() {
-            //     println!("NOT CONSISTENT");
-            //     let trail_element = self.trail.pop().unwrap();
-            //     println!("POP TRAIL ELEMENT: {:?}", trail_element);
-            //     match trail_element {
-            //         TrailElement::DecidedLiteral(t) => {
-            //             self.model.clear_value(t.clone());
-            //             self.undecided.push(t.clone());
-            //             self.state = State::Conflict(t.clone());
-            //             println!("\n{}", self)
-            //         }
-            //         _ => panic!()
-            //     }
-            // }
+            match &self.state {
+                State::Conflict(conflict_clause) => {
+                    // Remove all model assignments from trail.
+                    loop {
+                        if let Some(TrailElement::ModelAssignment(var, _)) = self.trail.pop() {
+                            self.undecided.push(var)
+                        } else {
+                            println!();
+                            break;
+                        }
+                    }
+                }
+                State::Search => {
+                    if self.undecided.len() == 0 {
+                        return true;
+                    }
+                    let variable = self.undecided.pop().unwrap();
+                    let value = Value::Integer(rng.gen_range(0..10));
+                    self.trail.push_model_assignment(&variable, value);
+                    println!("\nPush model assignment: {} = {}", variable, value);
+                }
+            }
 
-            // match &self.state {
-            //     State::Search => {
-            //         if let Some(e) = self.undecided.pop() {
-
-            //             match e.get() {
-            //                 Expression::Term(t) => {
-
-            //                     match t {
-            //                         Term::Boolean(_) => {
-
-            //                             let new_value = Value::Bool(true);
-            //                             self.model.set_value(t.clone(), new_value);
-            //                             self.trail.push(TrailElement::DecidedLiteral(t.clone()));
-            //                             // assert!(self.model.evaluate(&t.clone()) == Some(true));
-            //                         }
-            //                         _ => panic!()
-            //                     }
-            //                 }
-
-            //                 // ActualTerm::Variable(_) => {
-            //                 //     let new_value = Value::Integer(999);
-            //                 //     self.model.set_value(t.clone(), new_value);
-            //                 //     self.trail.push(TrailElement::ModelAssignment(t.clone(), new_value))
-            //                 // }
-            //                 _ => panic!()
-            //             }
-
-            //         } else {
-            //             // assert!(self.is_complete());
-            //             return true
-            //         }
-
-            //     }
-            //     State::Conflict(_) => {
-            //         unimplemented!()
-            //     }
-            // }
+            // Press enter for each step.
+            let _ = std::io::stdin().read_line(&mut String::new());
         }
     }
 }
 
 impl std::fmt::Display for Solver {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let undecided: Vec<String> = self.undecided.iter().map(|x| x.to_string()).collect();
         write!(
             f,
-            "SOLVER\nstate:\t\t{:?}\ntrail:\t\t{:?}\nundecided:\t{:?}",
-            self.state, self.trail, self.undecided
+            "SOLVER\nstate:\t\t{}\ntrail:\t\t{}\nundecided:\t{}\nis_consistent:\t{}\nis_complete:\t{}",
+            self.state, self.trail, undecided.join(", "), self.trail.is_consistent(), self.trail.is_complete()
         )
     }
 }
