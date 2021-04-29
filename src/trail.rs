@@ -38,8 +38,12 @@ impl Trail {
     }
 
     pub fn pop(&mut self) -> Option<TrailElement> {
-        self.elements.pop()
-        // TODO: remove from model if model assignment
+        let removed_element = self.elements.pop();
+        // If model assignment: clear the variable from the model.
+        if let Some(TrailElement::ModelAssignment(var, _)) = &removed_element {
+            self.model.clear_value(var.clone());
+        }
+        removed_element
     }
 
     pub fn value(&self, literal: &Literal) -> Option<bool> {
@@ -126,12 +130,56 @@ impl Trail {
 
 #[cfg(test)]
 mod tests {
-    use crate::formula::formula::greater;
+    use crate::clause::Clause;
+    use crate::formula::formula::{greater, t};
     use crate::literal::Literal;
     use crate::term::term::{constant, variable};
     use crate::trail::Trail;
+    use crate::trail_element::TrailElement;
     use crate::types::value::Value;
     use crate::types::variable::Variable;
+
+    #[test]
+    fn test_trail_push_pop() {
+        let mut trail = Trail::new();
+        let x = Variable::new("x");
+        let l = Literal::new(t(), false);
+        let c = Clause::new(vec![l.clone()]);
+        trail.push_model_assignment(&x, Value::Integer(1));
+        trail.push_decided_literal(&l);
+        trail.push_propagated_literal(&c, &l);
+
+        assert_eq!(trail.model.get_value(&x), Some(&Value::Integer(1)));
+
+        match trail.pop().unwrap() {
+            TrailElement::PropagatedLiteral(clause, literal) => {
+                assert_eq!(clause, c);
+                assert_eq!(literal, l);
+            }
+            _ => assert!(false),
+        }
+
+        assert_eq!(trail.model.get_value(&x), Some(&Value::Integer(1)));
+
+        match trail.pop().unwrap() {
+            TrailElement::DecidedLiteral(literal) => {
+                assert_eq!(literal, l);
+            }
+            _ => assert!(false),
+        }
+
+        assert_eq!(trail.model.get_value(&x), Some(&Value::Integer(1)));
+
+        match trail.pop().unwrap() {
+            TrailElement::ModelAssignment(var, val) => {
+                assert_eq!(var, x);
+                assert_eq!(val, Value::Integer(1));
+            }
+            _ => panic!(),
+        }
+
+        assert!(trail.pop().is_none());
+    }
 
     #[test]
     fn test_trail_value_functions() {

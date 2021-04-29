@@ -1,7 +1,7 @@
 use crate::literal::Literal;
 use crate::model::Model;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Clause {
     literals: Vec<Literal>,
 }
