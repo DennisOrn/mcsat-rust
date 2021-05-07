@@ -5,7 +5,7 @@ use crate::trail_element::TrailElement;
 use crate::types::value::Value;
 use crate::types::variable::Variable;
 
-#[derive(Debug)]
+#[derive(Clone)]
 pub struct Trail {
     elements: Vec<TrailElement>,
     model: Model,
@@ -20,31 +20,40 @@ impl Trail {
     }
 
     pub fn push_decided_literal(&mut self, literal: &Literal) {
-        self.elements
-            .push(TrailElement::DecidedLiteral(literal.clone()))
+        let element = TrailElement::DecidedLiteral(literal.clone());
+        // println!("Push decided literal: {}", element);
+        self.elements.push(element)
     }
 
     pub fn push_propagated_literal(&mut self, clause: &Clause, literal: &Literal) {
-        self.elements.push(TrailElement::PropagatedLiteral(
-            clause.clone(),
-            literal.clone(),
-        ))
+        let element = TrailElement::PropagatedLiteral(clause.clone(), literal.clone());
+        // println!("Push propagated literal: {}", element);
+        self.elements.push(element);
     }
 
     pub fn push_model_assignment(&mut self, variable: &Variable, value: Value) {
-        self.elements
-            .push(TrailElement::ModelAssignment(variable.clone(), value));
+        let element = TrailElement::ModelAssignment(variable.clone(), value);
+        // println!("Push model assignment: {}", element);
+        self.elements.push(element);
         self.model.set_value(variable.clone(), value);
     }
 
     pub fn pop(&mut self) -> Option<TrailElement> {
         let removed_element = self.elements.pop();
+        if removed_element.is_none() {
+            return None;
+        }
+        // println!("Pop: {}", removed_element.clone().unwrap());
 
         // If model assignment: clear the variable from the model.
         if let Some(TrailElement::ModelAssignment(var, _)) = &removed_element {
             self.model.clear_value(var.clone());
         }
         removed_element
+    }
+
+    pub fn last(&self) -> Option<&TrailElement> {
+        self.elements.last()
     }
 
     pub fn value_clause(&self, clause: &Clause) -> Option<bool> {
@@ -73,7 +82,7 @@ impl Trail {
         }
     }
 
-    pub fn value_b(&self, literal: &Literal) -> Option<bool> {
+    fn value_b(&self, literal: &Literal) -> Option<bool> {
         let literals = self.all_literals();
         let negated_literal = literal.negate();
         for l in literals {
@@ -86,7 +95,7 @@ impl Trail {
         None
     }
 
-    pub fn value_t(&self, literal: &Literal) -> Option<bool> {
+    fn value_t(&self, literal: &Literal) -> Option<bool> {
         // let model_assignments = self.all_assignments();
         // let mut model_clone = self.model.clone();
 
@@ -144,6 +153,11 @@ impl Trail {
             }
         }
         true
+    }
+
+    pub fn is_infeasible(&self) -> bool {
+        // TODO: implement this (if we need it)
+        unimplemented!()
     }
 
     fn all_literals(&self) -> Vec<&Literal> {

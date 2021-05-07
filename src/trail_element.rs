@@ -3,7 +3,7 @@ use crate::literal::Literal;
 use crate::types::value::Value;
 use crate::types::variable::Variable;
 
-#[derive(Debug)]
+#[derive(Clone)]
 pub enum TrailElement {
     DecidedLiteral(Literal),
     PropagatedLiteral(Clause, Literal),

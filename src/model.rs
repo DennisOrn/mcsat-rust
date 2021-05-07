@@ -2,7 +2,7 @@ use crate::types::value::Value;
 use crate::types::variable::Variable;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Model {
     map: HashMap<Variable, Value>,
 }
