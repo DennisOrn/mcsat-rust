@@ -1,5 +1,6 @@
 use crate::formula::formula::Formula;
 use crate::model::Model;
+use crate::term::term::Term;
 use crate::types::variable::Variable;
 use hashconsing::HConsed;
 
@@ -8,16 +9,25 @@ pub struct Literal {
     // TODO: should literals be hashconsed?
     // TODO: Check all data types, hashconsing.
     formula: HConsed<Formula>,
+    variables: Vec<HConsed<Term>>,
     is_negated: bool,
-    variables: Vec<Variable>,
 }
 
 impl Literal {
-    pub fn new(formula: HConsed<Formula>, is_negated: bool, variables: Vec<Variable>) -> Literal {
+    pub fn new(
+        formula: HConsed<Formula>,
+        variables: Vec<HConsed<Term>>,
+        is_negated: bool,
+    ) -> Literal {
+        // Assert that variables are in fact variables
+        for var in &variables {
+            assert!(matches!(var.get(), Term::Variable(_)))
+        }
+
         Literal {
             formula: formula,
-            is_negated: is_negated,
             variables: variables,
+            is_negated: is_negated,
         }
     }
 
@@ -50,30 +60,29 @@ mod tests {
     use crate::literal::Literal;
     use crate::model::Model;
     use crate::term::term::variable;
-    use crate::types::variable::Variable;
 
     #[test]
     fn test_evaluate_literal() {
         let model = Model::new();
 
         assert_eq!(
-            Literal::new(t(), false, vec![]).evaluate(&model),
+            Literal::new(t(), vec![], false).evaluate(&model),
             Some(true)
         );
         assert_eq!(
-            Literal::new(t(), true, vec![]).evaluate(&model),
+            Literal::new(t(), vec![], true).evaluate(&model),
             Some(false)
         );
         assert_eq!(
-            Literal::new(f(), false, vec![]).evaluate(&model),
+            Literal::new(f(), vec![], false).evaluate(&model),
             Some(false)
         );
-        assert_eq!(Literal::new(f(), true, vec![]).evaluate(&model), Some(true));
+        assert_eq!(Literal::new(f(), vec![], true).evaluate(&model), Some(true));
         assert_eq!(
             Literal::new(
                 equal(variable("x"), variable("y")),
+                vec![variable("x"), variable("y")],
                 false,
-                vec![Variable::new("x"), Variable::new("y")]
             )
             .evaluate(&model),
             None
@@ -81,8 +90,8 @@ mod tests {
         assert_eq!(
             Literal::new(
                 equal(variable("x"), variable("y")),
+                vec![variable("x"), variable("y")],
                 true,
-                vec![Variable::new("x"), Variable::new("y")]
             )
             .evaluate(&model),
             None

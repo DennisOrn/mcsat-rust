@@ -84,13 +84,13 @@ impl Theory for BooleanTheory {
         Clause::new(vec![
             Literal::new(
                 equal(variable("x"), constant(Value::True)),
+                vec![variable("x")],
                 true,
-                vec![Variable::new("x")],
             ),
             Literal::new(
                 equal(variable("y"), constant(Value::True)),
+                vec![variable("y")],
                 true,
-                vec![Variable::new("y")],
             ),
         ])
     }
