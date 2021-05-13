@@ -1,9 +1,11 @@
 use crate::clause::Clause;
 use crate::literal::Literal;
 use crate::model::Model;
+use crate::term::term::Term;
 use crate::trail_element::TrailElement;
 use crate::types::value::Value;
 use crate::types::variable::Variable;
+use hashconsing::HConsed;
 
 #[derive(Clone)]
 pub struct Trail {
@@ -31,11 +33,11 @@ impl Trail {
         self.elements.push(element);
     }
 
-    pub fn push_model_assignment(&mut self, variable: &Variable, value: Value) {
+    pub fn push_model_assignment(&mut self, variable: HConsed<Term>, value: Value) {
         let element = TrailElement::ModelAssignment(variable.clone(), value);
         // println!("Push model assignment: {}", element);
         self.elements.push(element);
-        self.model.set_value(variable.clone(), value);
+        self.model.set_value(variable.get().clone(), value);
     }
 
     pub fn pop(&mut self) -> Option<TrailElement> {
@@ -47,7 +49,7 @@ impl Trail {
 
         // If model assignment: clear the variable from the model.
         if let Some(TrailElement::ModelAssignment(var, _)) = &removed_element {
-            self.model.clear_value(var.clone());
+            self.model.clear_value(var.get());
         }
         removed_element
     }
@@ -194,14 +196,14 @@ mod tests {
     #[test]
     fn test_push_pop() {
         let mut trail = Trail::new();
-        let x = Variable::new("x");
-        let l = Literal::new(t(), false);
+        let x = variable("x");
+        let l = Literal::new(t(), vec![], false);
         let c = Clause::new(vec![l.clone()]);
-        trail.push_model_assignment(&x, Value::Integer(1));
+        trail.push_model_assignment(x.clone(), Value::Integer(1));
         trail.push_decided_literal(&l);
         trail.push_propagated_literal(&c, &l);
 
-        assert_eq!(trail.model.get_value(&x), Some(&Value::Integer(1)));
+        assert_eq!(trail.model.get_value(x.get()), Some(&Value::Integer(1)));
 
         match trail.pop().unwrap() {
             TrailElement::PropagatedLiteral(clause, literal) => {
@@ -240,18 +242,21 @@ mod tests {
         let mut trail = Trail::new();
         trail.push_decided_literal(&Literal::new(
             greater(variable("x"), constant(Value::Integer(0))),
+            vec![variable("x")],
             false,
         ));
-        trail.push_model_assignment(&Variable::new("x"), Value::Integer(1));
-        trail.push_model_assignment(&Variable::new("y"), Value::Integer(0));
+        trail.push_model_assignment(variable("x"), Value::Integer(1));
+        trail.push_model_assignment(variable("y"), Value::Integer(0));
         trail.push_decided_literal(&Literal::new(
             greater(variable("z"), constant(Value::Integer(0))),
+            vec![variable("z")],
             false,
         ));
 
         assert_eq!(
             trail.value_t(&Literal::new(
                 greater(variable("x"), constant(Value::Integer(0))),
+                vec![variable("x")],
                 false
             )),
             Some(true),
@@ -260,6 +265,7 @@ mod tests {
         assert_eq!(
             trail.value_b(&Literal::new(
                 greater(variable("x"), constant(Value::Integer(0))),
+                vec![variable("x")],
                 false
             )),
             Some(true),
@@ -268,6 +274,7 @@ mod tests {
         assert_eq!(
             trail.value_t(&Literal::new(
                 greater(variable("x"), constant(Value::Integer(1))),
+                vec![variable("x")],
                 false
             )),
             Some(false),
@@ -276,6 +283,7 @@ mod tests {
         assert_eq!(
             trail.value_t(&Literal::new(
                 greater(variable("z"), constant(Value::Integer(0))),
+                vec![variable("z")],
                 false
             )),
             None,
@@ -284,6 +292,7 @@ mod tests {
         assert_eq!(
             trail.value_b(&Literal::new(
                 greater(variable("z"), constant(Value::Integer(0))),
+                vec![variable("z")],
                 false
             )),
             Some(true),

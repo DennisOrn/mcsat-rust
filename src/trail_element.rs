@@ -1,13 +1,14 @@
 use crate::clause::Clause;
 use crate::literal::Literal;
+use crate::term::term::Term;
 use crate::types::value::Value;
-use crate::types::variable::Variable;
+use hashconsing::HConsed;
 
 #[derive(Clone)]
 pub enum TrailElement {
     DecidedLiteral(Literal),
     PropagatedLiteral(Clause, Literal),
-    ModelAssignment(Variable, Value), // TODO: should Variable be HConsed?
+    ModelAssignment(HConsed<Term>, Value),
 }
 
 impl std::fmt::Display for TrailElement {

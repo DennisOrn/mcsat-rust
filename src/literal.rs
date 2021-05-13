@@ -19,11 +19,10 @@ impl Literal {
         variables: Vec<HConsed<Term>>,
         is_negated: bool,
     ) -> Literal {
-        // Assert that variables are in fact variables
+        // Assert that variables are in fact variables.
         for var in &variables {
             assert!(matches!(var.get(), Term::Variable(_)))
         }
-
         Literal {
             formula: formula,
             variables: variables,

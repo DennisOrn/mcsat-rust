@@ -16,7 +16,10 @@ pub mod term {
     impl Term {
         pub fn evaluate(&self, model: &Model) -> Option<Value> {
             match self {
-                Term::Variable(variable) => variable.evaluate(model),
+                Term::Variable(variable) => match model.get_value(self) {
+                    Some(value) => Some(value.clone()),
+                    None => None,
+                },
                 Term::Constant(constant) => Some(constant.evaluate()),
                 Term::Function(function, args) => {
                     // TODO: lazy evaluation?

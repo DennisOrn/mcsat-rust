@@ -1,10 +1,12 @@
+use crate::term::term::Term;
 use crate::types::value::Value;
 use crate::types::variable::Variable;
+use hashconsing::HConsed;
 use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct Model {
-    map: HashMap<Variable, Value>,
+    map: HashMap<Term, Value>, // TODO: should 'static be used here?
 }
 
 impl Model {
@@ -14,41 +16,39 @@ impl Model {
         }
     }
 
-    pub fn set_value(&mut self, t: Variable, value: Value) {
-        // assert!(self.check_term_value(&t, &value));
+    pub fn set_value(&mut self, t: Term, value: Value) {
+        // TODO: add assertions.
         self.map.insert(t, value);
     }
 
-    pub fn get_value(&self, t: &Variable) -> Option<&Value> {
+    pub fn get_value(&self, t: &Term) -> Option<&Value> {
         self.map.get(t)
     }
 
-    pub fn clear_value(&mut self, t: Variable) {
-        self.map.remove(&t);
+    pub fn clear_value(&mut self, t: &Term) {
+        self.map.remove(t);
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::model::Model;
+    use crate::term::term::variable;
     use crate::types::value::Value;
-    use crate::types::variable::Variable;
 
     #[test]
     fn test_model() {
         let mut model = Model::new();
 
-        assert_eq!(model.get_value(&Variable::new("x")), None);
+        assert_eq!(model.get_value(&variable("x")), None);
 
-        model.set_value(Variable::new("x"), Value::Integer(5));
+        let x = variable("x");
+        model.set_value(x.get().clone(), Value::Integer(5));
 
-        assert_eq!(
-            model.get_value(&Variable::new("x")),
-            Some(&Value::Integer(5))
-        );
+        assert_eq!(model.get_value(&variable("x")), Some(&Value::Integer(5)));
 
-        model.clear_value(Variable::new("x"));
+        model.clear_value(variable("x").get());
 
-        assert_eq!(model.get_value(&Variable::new("x")), None);
+        assert_eq!(model.get_value(&variable("x")), None);
     }
 }

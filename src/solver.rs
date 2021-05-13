@@ -6,11 +6,23 @@ use crate::term::term::Term;
 use crate::theory::Theory;
 use crate::trail::Trail;
 use crate::trail_element::TrailElement;
-use crate::types::value::Value;
-use crate::types::variable::Variable;
 use colored::*;
-use rand::Rng;
-use std::collections::HashMap;
+use hashconsing::HConsed;
+
+#[derive(Debug)]
+enum Rules {
+    // Decide,
+    // Propagate,
+    Conflict,
+    Sat,
+    // Forget,
+
+    // Resolve,
+    // Consume,
+    // Backjump,
+    Unsat,
+    // Learn,
+}
 
 // pub struct Solver<'a> {
 pub struct Solver {
@@ -18,7 +30,7 @@ pub struct Solver {
     state: State,
     trail: Trail,
     clauses: Vec<Clause>,
-    undecided: Vec<Variable>,
+    undecided: Vec<HConsed<Term>>,
     // TODO: move this somewhere else?
     // TODO: rename
     //map: HashMap<Variable, Vec<&'a Literal>>,
@@ -26,12 +38,16 @@ pub struct Solver {
 
 // impl Solver<'_> {
 impl Solver {
-    pub fn new<'a>(
+    pub fn new(
         theory: Box<dyn Theory>,
         clauses: Vec<Clause>,
-        undecided: Vec<Variable>,
+        undecided: Vec<HConsed<Term>>,
         //map: HashMap<Variable, Vec<&'a Literal>>,
     ) -> Solver {
+        // Assert that all undecided terms are variables.
+        for var in &undecided {
+            assert!(matches!(var.get(), Term::Variable(_)))
+        }
         Solver {
             theory: theory,
             state: State::Search,
@@ -42,14 +58,59 @@ impl Solver {
         }
     }
 
-    // TODO: generate list with applicable rules at current state?
+    fn get_applicable_rules(&self) -> Vec<Rules> {
+        let mut rules: Vec<Rules> = vec![];
+
+        let mut add_conflict = false;
+        for clause in &self.clauses {
+            let value = self.trail.value_clause(&clause);
+            match value {
+                Some(false) => add_conflict = true,
+                _ => (),
+            }
+        }
+
+        // CONFLICT
+        if add_conflict {
+            rules.push(Rules::Conflict);
+        }
+
+        // SAT
+        if self.trail.is_satisfied(&self.clauses) {
+            rules.push(Rules::Sat);
+        }
+
+        // UNSAT
+        match &self.state {
+            State::Conflict(clause) => {
+                // TODO: find another way to represent a "false" conflict clause.
+                if clause == &Clause::new(vec![Literal::new(f(), vec![], false)]) {
+                    rules.push(Rules::Unsat)
+                }
+            }
+            _ => (),
+        }
+
+        // There must always be at least one applicable rule.
+        assert!(rules.len() > 0);
+        rules
+    }
+
+    // TODO: help-function, can be removed
+    fn print_applicable_rules(&self) {
+        println!(
+            "{} {:?}",
+            "AVAILABLE RULES".bright_purple(),
+            self.get_applicable_rules()
+        );
+    }
 
     pub fn run_hardcoded_example(&mut self) -> bool {
         // TODO: what about undecided?
         println!("{}", self);
 
         let variable = self.undecided.pop().unwrap();
-        self.theory.decide(&variable, &mut self.trail);
+        self.theory.decide(variable, &mut self.trail);
         println!("{}", self);
 
         self.propagate();
@@ -101,6 +162,8 @@ impl Solver {
             conflict_clause_4.get_literals()[0],
             Literal::new(f(), vec![], false)
         );
+
+        self.print_applicable_rules();
 
         false
     }
@@ -193,7 +256,7 @@ impl Solver {
                     // }
 
                     // let value = Value::False;
-                    self.theory.decide(&variable, &mut self.trail);
+                    self.theory.decide(variable, &mut self.trail);
                 }
             }
 
@@ -210,16 +273,6 @@ impl Solver {
             println!("{}", "PROPAGATE".blue());
             let mut run_again = false;
             for clause in &self.clauses {
-                // if self.trail.value_clause(&clause) != None {
-                //     continue;
-                // } //TODO
-
-                // let undefined_literals: Vec<&Literal> = clause
-                //     .get_literals()
-                //     .iter()
-                //     .filter(|l| self.trail.value_literal(&l).is_none())
-                //     .collect();
-
                 let mut skip = false;
                 let mut undefined = vec![];
                 for literal in clause.get_literals() {
@@ -243,7 +296,7 @@ impl Solver {
             }
 
             if !run_again {
-                println!("Done propagating\n");
+                println!("Done propagating");
                 return;
             }
         }

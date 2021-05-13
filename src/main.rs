@@ -94,7 +94,7 @@ fn main() {
         Literal::new(t.var("y"), vec![variable("y")], true),
     ]);
     let clauses = vec![clause1, clause2, clause3, clause4];
-    let undecided = vec![Variable::new("x"), Variable::new("y")];
+    let undecided = vec![variable("x"), variable("y")];
 
     for c in &clauses {
         println!("{}", c);
