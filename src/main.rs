@@ -102,7 +102,8 @@ fn main() {
     println!("\n");
 
     let mut solver = Solver::new(Box::new(t), clauses, undecided /*, map*/);
-    match solver.run_hardcoded_example() {
+    // match solver.run_hardcoded_example() {
+    match solver.run() {
         true => println!("\n{}\n", "SAT".green()),
         false => println!("\n{}\n", "UNSAT".red()),
     }

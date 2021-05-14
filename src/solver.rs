@@ -1,11 +1,12 @@
 use crate::clause::Clause;
-use crate::formula::formula::f;
+use crate::formula::formula::{equal, f};
 use crate::literal::Literal;
 use crate::state::State;
-use crate::term::term::Term;
+use crate::term::term::{constant, variable, Term};
 use crate::theory::Theory;
 use crate::trail::Trail;
 use crate::trail_element::TrailElement;
+use crate::types::value::Value;
 use colored::*;
 use hashconsing::HConsed;
 
@@ -15,21 +16,26 @@ enum Rule {
     Conflict(Clause),
     Sat,
     // Forget,
-    Resolve,
+    Resolve(Clause),
     // Consume,
-    // Backjump,
+    Backjump(usize, Clause, Literal), // TODO: usize is number of popped trail elements
     Unsat,
     // Learn,
+    TDecide(HConsed<Term>, Value),
 }
 
 impl std::fmt::Display for Rule {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Rule::Propagate(clause, literal) => write!(f, "Propagate: {}, {}", clause, literal),
-            Rule::Conflict(clause) => write!(f, "Conflict: {}", clause),
-            Rule::Sat => write!(f, "Sat"),
-            Rule::Resolve => write!(f, "Resolve"),
-            Rule::Unsat => write!(f, "Unsat"),
+            Rule::Propagate(clause, literal) => write!(f, "PROPAGATE: {} → {}", clause, literal),
+            Rule::Conflict(clause) => write!(f, "CONFLICT: {}", clause),
+            Rule::Sat => write!(f, "SAT"),
+            Rule::Resolve(clause) => write!(f, "RESOLVE: {}", clause),
+            Rule::Backjump(n, clause, literal) => {
+                write!(f, "BACKJUMP: {}, {}, {}", n, clause, literal)
+            }
+            Rule::Unsat => write!(f, "UNSAT"),
+            Rule::TDecide(var, val) => write!(f, "T-DECIDE: {}, {}", var, val),
         }
     }
 }
@@ -51,7 +57,7 @@ impl Solver {
     pub fn new(
         theory: Box<dyn Theory>,
         clauses: Vec<Clause>,
-        undecided: Vec<HConsed<Term>>,
+        undecided: Vec<HConsed<Term>>, // TODO: should this be used differently?
         //map: HashMap<Variable, Vec<&'a Literal>>,
     ) -> Solver {
         // Assert that all undecided terms are variables.
@@ -72,7 +78,7 @@ impl Solver {
         match rule {
             Rule::Propagate(clause, literal) => {
                 println!("{}", "PROPAGATE".blue());
-                self.trail.push_propagated_literal(&clause, &literal)
+                self.trail.push_propagated_literal(clause, literal)
             }
             Rule::Conflict(clause) => {
                 println!("{}", "CONFLICT".blue());
@@ -82,9 +88,26 @@ impl Solver {
                 println!("{}", "SAT".blue());
                 self.state = State::Sat;
             }
+            Rule::Resolve(clause) => {
+                println!("{}", "RESOLVE".blue());
+                self.trail.pop();
+                self.state = State::Conflict(clause.clone());
+            }
+            Rule::Backjump(n, clause, literal) => {
+                println!("{}", "BACKJUMP".blue());
+                for _ in 0..*n {
+                    self.trail.pop();
+                }
+                self.trail.push_propagated_literal(clause, literal);
+                self.state = State::Search;
+            }
             Rule::Unsat => {
                 println!("{}", "UNSAT".blue());
                 self.state = State::Unsat;
+            }
+            Rule::TDecide(variable, value) => {
+                println!("{}", "T-DECIDE".blue());
+                self.trail.push_model_assignment(variable.clone(), *value);
             }
             _ => unimplemented!("Tried to apply unimplemented rule: {}", rule),
         }
@@ -130,7 +153,6 @@ impl Solver {
         }
 
         // RESOLVE
-        let mut add_resolve = false;
         if let State::Conflict(conflict) = &self.state {
             match self.trail.last() {
                 Some(TrailElement::PropagatedLiteral(_, literal)) => {
@@ -138,16 +160,27 @@ impl Solver {
                     // Check if negated propagated literal is in conflict clause.
                     for conflict_literal in conflict.get_literals() {
                         if conflict_literal == &negated {
-                            add_resolve = true;
+                            let remaining_literals: Vec<Literal> = conflict
+                                .get_literals()
+                                .iter()
+                                .filter(|l| l != &conflict_literal)
+                                .map(|l| l.clone())
+                                .collect();
+
+                            let new_conflict: Clause;
+                            if remaining_literals.len() > 0 {
+                                new_conflict = Clause::new(remaining_literals);
+                            } else {
+                                new_conflict = Clause::new(vec![Literal::new(f(), vec![], false)]);
+                            }
+
+                            rules.push(Rule::Resolve(new_conflict));
+                            break;
                         }
                     }
                 }
                 _ => (),
             }
-        }
-
-        if add_resolve {
-            rules.push(Rule::Resolve);
         }
 
         // PROPAGATE
@@ -186,12 +219,8 @@ impl Solver {
     }
 
     // Used for debugging.
-    fn print_applicable_rules(&self) {
-        let rules: Vec<String> = self
-            .get_applicable_rules()
-            .iter()
-            .map(|x| x.to_string())
-            .collect();
+    fn print_applicable_rules(&self, rules: &Vec<Rule>) {
+        let rules: Vec<String> = rules.iter().map(|x| x.to_string()).collect();
         if rules.len() == 0 {
             println!("{}", "NO RULES AVAILABLE".bright_purple());
         } else {
@@ -206,63 +235,66 @@ impl Solver {
     pub fn run_hardcoded_example(&mut self) -> bool {
         // TODO: what about undecided?
         println!("{}", self);
-        self.print_applicable_rules();
+        self.print_applicable_rules(&self.get_applicable_rules());
 
         let variable = self.undecided.pop().unwrap();
         self.theory.decide(variable, &mut self.trail);
         println!("{}", self);
-        self.print_applicable_rules();
+        self.print_applicable_rules(&self.get_applicable_rules());
 
         // self.propagate();
         self.apply(self.get_applicable_rules().first().unwrap());
         println!("{}", self);
-        self.print_applicable_rules();
+        self.print_applicable_rules(&self.get_applicable_rules());
 
         // self.check_for_conflict();
         self.apply(self.get_applicable_rules().first().unwrap());
         println!("{}", self);
-        self.print_applicable_rules();
+        self.print_applicable_rules(&self.get_applicable_rules());
 
         let conflict_clause_1: Clause;
         match &self.state {
             State::Conflict(conflict_clause) => conflict_clause_1 = conflict_clause.clone(),
             _ => panic!(),
         }
-        self.resolve(&conflict_clause_1);
+        // self.resolve(&conflict_clause_1);
+        self.apply(self.get_applicable_rules().first().unwrap());
         println!("{}", self);
-        self.print_applicable_rules();
+        self.print_applicable_rules(&self.get_applicable_rules());
 
         self.backjump();
         println!("{}", self);
-        self.print_applicable_rules();
+        self.print_applicable_rules(&self.get_applicable_rules());
 
         // self.propagate();
         self.apply(self.get_applicable_rules().first().unwrap());
         println!("{}", self);
-        self.print_applicable_rules();
+        self.print_applicable_rules(&self.get_applicable_rules());
 
         // self.check_for_conflict();
         self.apply(self.get_applicable_rules().first().unwrap());
         println!("{}", self);
-        self.print_applicable_rules();
+        self.print_applicable_rules(&self.get_applicable_rules());
 
         let conflict_clause_2: Clause;
         match &self.state {
             State::Conflict(conflict_clause) => conflict_clause_2 = conflict_clause.clone(),
             _ => panic!(),
         }
-        self.resolve(&conflict_clause_2);
+        // self.resolve(&conflict_clause_2);
+        self.apply(self.get_applicable_rules().first().unwrap());
         println!("{}", self);
-        self.print_applicable_rules();
+        self.print_applicable_rules(&self.get_applicable_rules());
 
         let conflict_clause_3: Clause;
         match &self.state {
             State::Conflict(conflict_clause) => conflict_clause_3 = conflict_clause.clone(),
             _ => panic!(),
         }
-        self.resolve(&conflict_clause_3);
+        // self.resolve(&conflict_clause_3);
+        self.apply(self.get_applicable_rules().first().unwrap());
         println!("{}", self);
-        self.print_applicable_rules();
+        self.print_applicable_rules(&self.get_applicable_rules());
 
         // let conflict_clause_4: Clause;
         // match &self.state {
@@ -281,137 +313,52 @@ impl Solver {
         false
     }
 
-    // pub fn run(&mut self) -> bool {
-    //     // TODO: add clauses as decided literals here (?)
-    //     // for clause in &self.clauses {
-    //     //     let literals = clause.get_literals();
-    //     //     for literal in literals {
-    //     //         if self.trail.value_literal(literal).is_none() {
-    //     //             println!("Push decided literal: {}", literal);
-    //     //             self.trail.push_decided_literal(literal);
-    //     //         }
-    //     //     }
-    //     // }
+    pub fn run(&mut self) -> bool {
+        // TODO: add clauses as decided literals here (?)
 
-    //     // let mut rng = rand::thread_rng();
-    //     for i in 1..1000 {
-    //         println!("--------------- ITERATION {} ----------------", i);
-    //         assert!(self.trail.is_consistent());
+        // TODO: remove this
+        self.apply(&Rule::TDecide(variable("x"), Value::True));
+        self.undecided.remove(0);
+        println!("{}", self);
+        let _ = std::io::stdin().read_line(&mut String::new());
 
-    //         // self.propagate();
-
-    //         println!("\n{}\n", self);
-
-    //         match &self.state {
-    //             State::Conflict(conflict_clause) => {
-    //                 println!("{}", "CONFLICT".blue());
-    //                 // Remove all model assignments from trail.
-    //                 // loop {
-    //                 //     let element = self.trail.pop();
-    //                 //     if let Some(TrailElement::ModelAssignment(var, _)) = element {
-    //                 //         self.undecided.push(var);
-    //                 //     } else if element.is_none() {
-    //                 //         break;
-    //                 //     }
-    //                 // }
-
-    //                 // assert!() // TODO: add assertion about conflict clause
-    //                 // let literals = conflict_clause.get_literals();
-    //                 // if literals.len() == 1 && literals[0] == Literal::new(f(), false) {
-    //                 //     return false;
-    //                 // }
-    //                 // self.resolve(&conflict_clause.clone());
-    //             }
-    //             State::Search => {
-    //                 // Check which state we are in by evaluating clauses.
-    //                 self.state = State::Search;
-    //                 for clause in &self.clauses {
-    //                     print!("evaluate {}: ", clause);
-    //                     match self.trail.value_clause(clause) {
-    //                         Some(true) => {
-    //                             println!("{}", "true".green())
-    //                         }
-    //                         Some(false) => {
-    //                             println!("{}", "false".red());
-    //                             self.state = State::Conflict(clause.clone());
-    //                             break;
-    //                         }
-    //                         None => {
-    //                             println!("{}", "undef".yellow());
-    //                         }
-    //                     }
-    //                 }
-
-    //                 match self.state {
-    //                     State::Conflict(_) => {
-    //                         // Press enter for each step.
-    //                         let _ = std::io::stdin().read_line(&mut String::new());
-    //                         continue;
-    //                     }
-    //                     _ => (),
-    //                 }
-
-    //                 if self.undecided.len() == 0 {
-    //                     assert!(self.check_solution());
-    //                     assert!(self.trail.is_complete());
-    //                     return true;
-    //                 }
-
-    //                 let variable = self.undecided.pop().unwrap();
-
-    //                 // let value = Value::Integer(rng.gen_range(0..2));
-
-    //                 // let value: Value;
-    //                 // match rng.gen_range(0..2) {
-    //                 //     0 => value = Value::False,
-    //                 //     1 => value = Value::True,
-    //                 //     _ => panic!(),
-    //                 // }
-
-    //                 // let value = Value::False;
-    //                 self.theory.decide(variable, &mut self.trail);
-    //             }
-    //         }
-
-    //         // Press enter for each step.
-    //         let _ = std::io::stdin().read_line(&mut String::new());
-    //     }
-
-    //     panic!()
-    // }
-
-    fn resolve(&mut self, conflict: &Clause) {
-        println!("{}", "RESOLVE".blue());
-
-        match self.trail.last() {
-            Some(TrailElement::PropagatedLiteral(_, l)) => {
-                let negated = l.negate();
-                // Check if negated propagated literal is in conflict clause.
-                for conflict_literal in conflict.get_literals() {
-                    if conflict_literal == &negated {
-                        println!("found negated literal: {}", &conflict_literal);
-                        self.trail.pop();
-                        let remaining_literals: Vec<Literal> = conflict
-                            .get_literals()
-                            .iter()
-                            .filter(|l| l != &conflict_literal)
-                            .map(|l| l.clone())
-                            .collect();
-
-                        let new_conflict: Clause;
-                        if remaining_literals.len() > 0 {
-                            new_conflict = Clause::new(remaining_literals);
-                        } else {
-                            new_conflict = Clause::new(vec![Literal::new(f(), vec![], false)]);
-                        }
-
-                        println!("new conflict clause: {}", &new_conflict);
-                        self.state = State::Conflict(new_conflict);
-                        return;
-                    }
-                }
+        loop {
+            match self.state {
+                State::Sat => return true,
+                State::Unsat => return false,
+                _ => (),
             }
-            _ => println!("Did not succeed, last element in trail != propagated literal"),
+            let rules = self.get_applicable_rules();
+            self.print_applicable_rules(&rules);
+
+            /* TEMPORARY; DELETE THIS */
+            if rules.len() == 0 {
+                self.apply(&Rule::Backjump(
+                    1,
+                    Clause::new(vec![Literal::new(
+                        equal(variable("x"), constant(Value::True)),
+                        vec![variable("x")],
+                        true,
+                    )]),
+                    Literal::new(
+                        equal(variable("x"), constant(Value::True)),
+                        vec![variable("x")],
+                        true,
+                    ),
+                ));
+                println!("{}", self);
+                let _ = std::io::stdin().read_line(&mut String::new());
+                continue;
+            }
+            /* TEMPORARY; DELETE THIS */
+
+            let rule = rules.first().unwrap(); // TODO: unsafe
+            self.apply(&rule);
+
+            println!("{}", self);
+
+            // Press enter for each step.
+            let _ = std::io::stdin().read_line(&mut String::new());
         }
     }
 
