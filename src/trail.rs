@@ -76,10 +76,13 @@ impl Trail {
     }
 
     pub fn value_literal(&self, literal: &Literal) -> Option<bool> {
+        // println!("value of literal {}", literal);
         let value_b = self.value_b(literal);
         if value_b.is_none() {
+            // println!("value_t {:?}", self.value_t(literal));
             return self.value_t(literal);
         } else {
+            // println!("value_b {}", value_b.unwrap());
             return value_b;
         }
     }
