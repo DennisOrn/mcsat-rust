@@ -11,13 +11,16 @@ mod trail_element; // TODO: underscore?
 mod types;
 
 use crate::clause::Clause;
+use crate::formula::formula::equal;
 use crate::literal::Literal;
 use crate::solver::Solver;
-use crate::term::term::variable;
+use crate::term::term::{constant, variable, Term};
 use crate::theory::BooleanTheory;
-use crate::types::variable::Variable;
+use crate::types::value::Value;
 use colored::*;
+use hashconsing::HConsed;
 use std::collections::HashMap;
+use std::collections::VecDeque;
 
 fn main() {
     // let clause1 = Clause::new(vec![Literal::new(
@@ -78,23 +81,42 @@ fn main() {
 
     let t = BooleanTheory::new();
     let clause1 = Clause::new(vec![
-        Literal::new(t.var("x"), vec![variable("x")], false),
-        Literal::new(t.var("y"), vec![variable("y")], false),
+        Literal::new(t.var("x"), false),
+        Literal::new(t.var("y"), false),
     ]);
     let clause2 = Clause::new(vec![
-        Literal::new(t.var("x"), vec![variable("x")], false),
-        Literal::new(t.var("y"), vec![variable("y")], true),
+        Literal::new(t.var("x"), false),
+        Literal::new(t.var("y"), true),
     ]);
     let clause3 = Clause::new(vec![
-        Literal::new(t.var("x"), vec![variable("x")], true),
-        Literal::new(t.var("y"), vec![variable("y")], false),
+        Literal::new(t.var("x"), true),
+        Literal::new(t.var("y"), false),
     ]);
     let clause4 = Clause::new(vec![
-        Literal::new(t.var("x"), vec![variable("x")], true),
-        Literal::new(t.var("y"), vec![variable("y")], true),
+        Literal::new(t.var("x"), true),
+        Literal::new(t.var("y"), true),
     ]);
+
+    // TODO: overload equality (clauses)?
+    // let clause1 = Clause::new(vec![
+    //     Literal::new(equal(variable("x"), constant(Value::True)), false),
+    //     Literal::new(equal(variable("y"), constant(Value::True)), false),
+    // ]);
+    // let clause2 = Clause::new(vec![
+    //     Literal::new(equal(variable("x"), constant(Value::True)), false),
+    //     Literal::new(equal(variable("y"), constant(Value::False)), false),
+    // ]);
+    // let clause3 = Clause::new(vec![
+    //     Literal::new(equal(variable("x"), constant(Value::False)), false),
+    //     Literal::new(equal(variable("y"), constant(Value::True)), false),
+    // ]);
+    // let clause4 = Clause::new(vec![
+    //     Literal::new(equal(variable("x"), constant(Value::False)), false),
+    //     Literal::new(equal(variable("y"), constant(Value::False)), false),
+    // ]);
+
     let clauses = vec![clause1, clause2, clause3, clause4];
-    let undecided = vec![variable("x"), variable("y")];
+    let undecided: VecDeque<HConsed<Term>> = VecDeque::from(vec![variable("x"), variable("y")]);
 
     for c in &clauses {
         println!("{}", c);
@@ -102,7 +124,6 @@ fn main() {
     println!("\n");
 
     let mut solver = Solver::new(Box::new(t), clauses, undecided /*, map*/);
-    // match solver.run_hardcoded_example() {
     match solver.run() {
         true => println!("{}", "SAT".green()),
         false => println!("{}", "UNSAT".red()),

@@ -9,23 +9,23 @@ pub struct Literal {
     // TODO: should literals be hashconsed?
     // TODO: Check all data types, hashconsing.
     formula: HConsed<Formula>,
-    variables: Vec<HConsed<Term>>,
+    // variables: Vec<HConsed<Term>>,
     is_negated: bool,
 }
 
 impl Literal {
     pub fn new(
         formula: HConsed<Formula>,
-        variables: Vec<HConsed<Term>>,
+        // variables: Vec<HConsed<Term>>,
         is_negated: bool,
     ) -> Literal {
         // Assert that variables are in fact variables.
-        for var in &variables {
-            assert!(matches!(var.get(), Term::Variable(_)))
-        }
+        // for var in &variables {
+        //     assert!(matches!(var.get(), Term::Variable(_)))
+        // }
         Literal {
             formula: formula,
-            variables: variables,
+            // variables: variables,
             is_negated: is_negated,
         }
     }
@@ -33,8 +33,8 @@ impl Literal {
     pub fn negate(&self) -> Literal {
         Literal {
             formula: self.formula.clone(),
+            // variables: self.variables.clone(),
             is_negated: !self.is_negated,
-            variables: self.variables.clone(),
         }
     }
 
@@ -65,22 +65,25 @@ mod tests {
         let model = Model::new();
 
         assert_eq!(
-            Literal::new(t(), vec![], false).evaluate(&model),
+            Literal::new(t(), /*vec![],*/ false).evaluate(&model),
             Some(true)
         );
         assert_eq!(
-            Literal::new(t(), vec![], true).evaluate(&model),
+            Literal::new(t(), /*vec![],*/ true).evaluate(&model),
             Some(false)
         );
         assert_eq!(
-            Literal::new(f(), vec![], false).evaluate(&model),
+            Literal::new(f(), /*vec![],*/ false).evaluate(&model),
             Some(false)
         );
-        assert_eq!(Literal::new(f(), vec![], true).evaluate(&model), Some(true));
+        assert_eq!(
+            Literal::new(f(), /*vec![],*/ true).evaluate(&model),
+            Some(true)
+        );
         assert_eq!(
             Literal::new(
                 equal(variable("x"), variable("y")),
-                vec![variable("x"), variable("y")],
+                // vec![variable("x"), variable("y")],
                 false,
             )
             .evaluate(&model),
@@ -89,7 +92,7 @@ mod tests {
         assert_eq!(
             Literal::new(
                 equal(variable("x"), variable("y")),
-                vec![variable("x"), variable("y")],
+                // vec![variable("x"), variable("y")],
                 true,
             )
             .evaluate(&model),

@@ -66,7 +66,7 @@ impl Theory for BooleanTheory {
         for value in &self.values {
             let literal = Literal::new(
                 equal(variable.clone(), constant(*value)),
-                vec![variable.clone()],
+                // vec![variable.clone()],
                 false,
             );
             match trail.value_literal(&literal) {
@@ -100,12 +100,12 @@ impl Theory for BooleanTheory {
         Clause::new(vec![
             Literal::new(
                 equal(variable("x"), constant(Value::True)),
-                vec![variable("x")],
+                // vec![variable("x")],
                 true,
             ),
             Literal::new(
                 equal(variable("y"), constant(Value::True)),
-                vec![variable("y")],
+                // vec![variable("y")],
                 true,
             ),
         ])

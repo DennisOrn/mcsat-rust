@@ -197,7 +197,7 @@ mod tests {
     fn test_push_pop() {
         let mut trail = Trail::new();
         let x = variable("x");
-        let l = Literal::new(t(), vec![], false);
+        let l = Literal::new(t(), /*vec![],*/ false);
         let c = Clause::new(vec![l.clone()]);
         trail.push_model_assignment(x.clone(), Value::Integer(1));
         trail.push_decided_literal(&l);
@@ -242,21 +242,21 @@ mod tests {
         let mut trail = Trail::new();
         trail.push_decided_literal(&Literal::new(
             greater(variable("x"), constant(Value::Integer(0))),
-            vec![variable("x")],
+            // vec![variable("x")],
             false,
         ));
         trail.push_model_assignment(variable("x"), Value::Integer(1));
         trail.push_model_assignment(variable("y"), Value::Integer(0));
         trail.push_decided_literal(&Literal::new(
             greater(variable("z"), constant(Value::Integer(0))),
-            vec![variable("z")],
+            // vec![variable("z")],
             false,
         ));
 
         assert_eq!(
             trail.value_t(&Literal::new(
                 greater(variable("x"), constant(Value::Integer(0))),
-                vec![variable("x")],
+                // vec![variable("x")],
                 false
             )),
             Some(true),
@@ -265,7 +265,7 @@ mod tests {
         assert_eq!(
             trail.value_b(&Literal::new(
                 greater(variable("x"), constant(Value::Integer(0))),
-                vec![variable("x")],
+                // vec![variable("x")],
                 false
             )),
             Some(true),
@@ -274,7 +274,7 @@ mod tests {
         assert_eq!(
             trail.value_t(&Literal::new(
                 greater(variable("x"), constant(Value::Integer(1))),
-                vec![variable("x")],
+                // vec![variable("x")],
                 false
             )),
             Some(false),
@@ -283,7 +283,7 @@ mod tests {
         assert_eq!(
             trail.value_t(&Literal::new(
                 greater(variable("z"), constant(Value::Integer(0))),
-                vec![variable("z")],
+                // vec![variable("z")],
                 false
             )),
             None,
@@ -292,7 +292,7 @@ mod tests {
         assert_eq!(
             trail.value_b(&Literal::new(
                 greater(variable("z"), constant(Value::Integer(0))),
-                vec![variable("z")],
+                // vec![variable("z")],
                 false
             )),
             Some(true),
