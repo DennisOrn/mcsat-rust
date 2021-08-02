@@ -8,12 +8,11 @@ use crate::types::function::Function;
 use crate::types::predicate::Predicate;
 use crate::types::value::Value;
 use crate::types::variable::Variable;
-use colored::*;
 use hashconsing::HConsed;
 
 pub trait Theory {
     fn propagate(&self);
-    fn decide(&self, variable: HConsed<Term>, trail: &mut Trail);
+    fn decide(&self, variable: &HConsed<Term>, trail: &Trail) -> Option<Value>;
     fn conflict(&self) -> Clause;
     fn consume(&self);
     fn backjump_decide(&self);
@@ -46,45 +45,40 @@ impl Theory for BooleanTheory {
         unimplemented!()
     }
 
-    fn decide(&self, variable: HConsed<Term>, trail: &mut Trail) {
-        println!("{}", "T-DECIDE".blue());
-        // // Create clone of trail to avoid pushing and popping on the "real" trail.
-        // let mut trail_clone = trail.clone();
-        // for value in &self.values {
-        //     trail_clone.push_model_assignment(variable, *value);
-        //     if trail_clone.is_consistent() {
-        //         // Commit model assignment and return.
-        //         println!("Push model assignment: {} = {}", variable, value);
-        //         trail.push_model_assignment(variable, *value);
-        //         return;
-        //     } else {
-        //         let _ = trail_clone.pop();
-        //     }
-        // }
-        // panic!("Could not decide value for variable {}", variable);
-
+    fn decide(&self, variable: &HConsed<Term>, trail: &Trail) -> Option<Value> {
+        // Create clone of trail to avoid pushing and popping on the "real" trail.
+        let mut trail_clone = trail.clone();
         for value in &self.values {
-            let literal = Literal::new(
-                equal(variable.clone(), constant(*value)),
-                vec![variable.clone()],
-                false,
-            );
-            match trail.value_literal(&literal) {
-                Some(true) | None => {
-                    trail.push_model_assignment(variable, *value);
-                    return;
-                }
-                _ => (),
+            trail_clone.push_model_assignment(variable.clone(), *value);
+            if trail_clone.is_consistent() {
+                // Commit model assignment and return.
+                // println!("Push model assignment: {} = {}", variable, value);
+                // trail.push_model_assignment(variable, *value);
+                return Some(*value);
+            } else {
+                let _ = trail_clone.pop();
             }
         }
-        panic!("Could not decide value for variable {}", variable);
+        None
+
+        // for value in &self.values {
+        //     let literal = Literal::new(
+        //         equal(variable.clone(), constant(*value)),
+        //         // vec![variable.clone()],
+        //         false,
+        //     );
+        //     match trail.value_literal(&literal) {
+        //         Some(true) | None => {
+        //             return Some(*value);
+        //         }
+        //         _ => (),
+        //     }
+        // }
+        // None
     }
 
     fn conflict(&self) -> Clause {
-        unimplemented!()
-        // println!("{}", "T-CONFLICT".blue());
-        // // TODO: check if M is infeasible somewhere
-        // self.explain()
+        self.explain()
     }
 
     fn consume(&self) {
@@ -96,18 +90,11 @@ impl Theory for BooleanTheory {
     }
 
     fn explain(&self) -> Clause {
+        // unimplemented!()
         // TODO: this is hardcoded for now.
         Clause::new(vec![
-            Literal::new(
-                equal(variable("x"), constant(Value::True)),
-                vec![variable("x")],
-                true,
-            ),
-            Literal::new(
-                equal(variable("y"), constant(Value::True)),
-                vec![variable("y")],
-                true,
-            ),
+            Literal::new(equal(variable("y"), constant(Value::True)), true),
+            Literal::new(equal(variable("y"), constant(Value::False)), true),
         ])
     }
 }
