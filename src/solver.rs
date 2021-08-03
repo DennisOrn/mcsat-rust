@@ -11,6 +11,17 @@ use colored::*;
 use hashconsing::HConsed;
 use std::collections::VecDeque;
 
+// Debug function for printing vectors.
+fn print_vec<T>(v: &[T])
+where
+    T: std::fmt::Display,
+{
+    for i in v.iter() {
+        print!("{}", i);
+    }
+    println!();
+}
+
 enum Rule {
     Propagate(Clause, Literal),
     Conflict(Clause),
@@ -19,7 +30,7 @@ enum Rule {
     Backjump(usize, Clause, Literal), // TODO: usize is number of popped trail elements
     Unsat,
     TDecide(HConsed<Term>, Value),
-    TConflict,
+    TConflict(Clause),
 }
 
 impl std::fmt::Display for Rule {
@@ -34,7 +45,7 @@ impl std::fmt::Display for Rule {
             }
             Rule::Unsat => write!(f, "UNSAT"),
             Rule::TDecide(var, val) => write!(f, "T-DECIDE: {} ↦ {}", var, val),
-            Rule::TConflict => write!(f, "T-CONFLICT"),
+            Rule::TConflict(clause) => write!(f, "T-CONFLICT: {}", clause),
         }
     }
 }
@@ -76,9 +87,7 @@ impl Solver {
     fn apply(&mut self, rule: &Rule) {
         println!("{}", rule.to_string().blue());
         match rule {
-            Rule::Propagate(clause, literal) => {
-                self.trail.push_propagated_literal(clause, literal)
-            }
+            Rule::Propagate(clause, literal) => self.trail.push_propagated_literal(clause, literal),
             Rule::Conflict(clause) => {
                 self.state = State::Conflict(clause.clone());
             }
@@ -109,9 +118,8 @@ impl Solver {
                 self.undecided.pop_front();
                 self.trail.push_model_assignment(variable.clone(), *value);
             }
-            Rule::TConflict => {
-                let explanation = self.theory.conflict();
-                self.state = State::Conflict(explanation);
+            Rule::TConflict(explanation) => {
+                self.state = State::Conflict(explanation.clone());
             }
             // Rule::TConsume => {
             //     println!("{}", "T-CONSUME".blue());
@@ -139,34 +147,57 @@ impl Solver {
         match &self.state {
             State::Conflict(conflict) => {
                 match self.trail.last() {
-
-                    // TODO: broken, fix this!
-                    // TODO: broken, fix this!
-                    // TODO: broken, fix this!
-                    // TODO: broken, fix this!
-                    // TODO: broken, fix this!
-
                     // RESOLVE
-                    Some(TrailElement::PropagatedLiteral(_, literal)) => {
+                    Some(TrailElement::PropagatedLiteral(clause, literal)) => {
                         let negated = literal.negate();
                         // Check if negated propagated literal is in conflict clause.
                         for conflict_literal in conflict.get_literals() {
                             if conflict_literal == &negated {
-                                let remaining_literals: Vec<Literal> = conflict
+                                // Remaining literals from the conflict.
+                                let remaining_literals_conflict: Vec<Literal> = conflict
                                     .get_literals()
                                     .iter()
                                     .filter(|l| l != &conflict_literal)
                                     .map(|l| l.clone())
                                     .collect();
 
+                                // Remaining literals from the propagated clause.
+                                let remaining_literals_clause: Vec<Literal> = clause
+                                    .get_literals()
+                                    .iter()
+                                    .filter(|l| l != &literal)
+                                    .map(|l| l.clone())
+                                    .collect();
+
+                                // println!("clause: {}", &clause);
+                                // println!("conflict_literal: {}", &conflict_literal);
+
+                                // print!("remaining_literals_conflict: ");
+                                // print_vec(&remaining_literals_conflict);
+
+                                // print!("remaining_literals_clause: ");
+                                // print_vec(&remaining_literals_clause);
+
                                 let new_conflict: Clause;
-                                if remaining_literals.len() > 0 {
-                                    new_conflict = Clause::new(remaining_literals);
+                                if remaining_literals_conflict.len() > 0 {
+                                    let remaining_literals_clause_no_duplicates: Vec<Literal> =
+                                        remaining_literals_clause
+                                            .iter()
+                                            .filter(|l| !remaining_literals_conflict.contains(&l))
+                                            .map(|l| l.clone())
+                                            .collect();
+                                    // print!("remaining_literals_clause_no_duplicates: ");
+                                    // print_vec(&remaining_literals_clause_no_duplicates);
+
+                                    new_conflict = Clause::new(
+                                        [
+                                            remaining_literals_conflict.as_slice(),
+                                            remaining_literals_clause_no_duplicates.as_slice(),
+                                        ]
+                                        .concat(),
+                                    );
                                 } else {
-                                    new_conflict = Clause::new(vec![Literal::new(
-                                        f(),
-                                        /*vec![],*/ false,
-                                    )]);
+                                    new_conflict = Clause::new(vec![Literal::new(f(), false)]);
                                 }
 
                                 rules.push(Rule::Resolve(new_conflict));
@@ -332,32 +363,50 @@ impl Solver {
     }
 
     pub fn run_hardcoded(&mut self) -> bool {
-        // self.apply(&self.get_available_rules().first().unwrap());
-        // println!("{}", self);
-        // self.apply(&self.get_available_rules().first().unwrap());
-        // println!("{}", self);
-        // self.apply(&Rule::TDecide(variable("y"), Value::True));
-        // println!("{}", self);
-        // self.apply(&self.get_available_rules().first().unwrap());
-        // println!("{}", self);
-        // self.apply(&self.get_available_rules().first().unwrap());
-        // println!("{}", self);
-        // self.apply(&Rule::TConflict);
-        // println!("{}", self);
-        // self.apply(&self.get_available_rules().first().unwrap());
-        // println!("{}", self);
-        // self.apply(&self.get_available_rules().first().unwrap());
-        // println!("{}", self);
-        // self.apply(&self.get_available_rules().first().unwrap());
-        // println!("{}", self);
+        self.apply(&self.get_available_rules().first().unwrap());
+        println!("{}", self);
+        self.apply(&self.get_available_rules().first().unwrap());
+        println!("{}", self);
+        self.apply(&self.get_available_rules().first().unwrap());
+        println!("{}", self);
 
+        let explanation1 = Clause::new(vec![
+            Literal::new(equal(variable("y"), constant(Value::True)), true),
+            Literal::new(equal(variable("y"), constant(Value::False)), true),
+        ]);
+        self.apply(&Rule::TConflict(explanation1));
+        println!("{}", self);
+        self.apply(&self.get_available_rules().first().unwrap());
+        println!("{}", self);
+        self.apply(&self.get_available_rules().first().unwrap());
+        println!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
         println!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
         println!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
         println!("{}", self);
-        self.apply(&Rule::TConflict);
+        self.apply(&self.get_available_rules().first().unwrap());
+        println!("{}", self);
+
+        let explanation2 = Clause::new(vec![
+            Literal::new(equal(variable("y"), constant(Value::True)), true),
+            Literal::new(equal(variable("y"), constant(Value::False)), true),
+        ]);
+        self.apply(&Rule::TConflict(explanation2));
+        println!("{}", self);
+        self.apply(&self.get_available_rules().first().unwrap());
+        println!("{}", self);
+        self.apply(&self.get_available_rules().first().unwrap());
+        println!("{}", self);
+        self.apply(&self.get_available_rules().first().unwrap());
+        println!("{}", self);
+
+        let explanation3 = Clause::new(vec![
+            Literal::new(equal(variable("x"), constant(Value::False)), true),
+            Literal::new(equal(variable("x"), constant(Value::True)), true),
+        ]);
+        self.apply(&Rule::TConflict(explanation3));
         println!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
         println!("{}", self);

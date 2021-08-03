@@ -13,10 +13,7 @@ pub struct Literal {
 }
 
 impl Literal {
-    pub fn new(
-        formula: HConsed<Formula>,
-        is_negated: bool,
-    ) -> Literal {
+    pub fn new(formula: HConsed<Formula>, is_negated: bool) -> Literal {
         Literal {
             formula: formula,
             is_negated: is_negated,
