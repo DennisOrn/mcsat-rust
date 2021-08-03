@@ -79,7 +79,9 @@ fn main() {
     // // let clauses = map.values().cloned().collect::<Vec<&Clause>>();
     // let undecided = vec![Variable::new("a"), Variable::new("b"), Variable::new("c")];
 
-    let t = BooleanTheory::new();
+    // TODO: overload equality (clauses)?
+
+    // let t = BooleanTheory::new();
     // let clause1 = Clause::new(vec![
     //     Literal::new(t.var("x"), false),
     //     Literal::new(t.var("y"), false),
@@ -97,22 +99,22 @@ fn main() {
     //     Literal::new(t.var("y"), true),
     // ]);
 
-    // TODO: overload equality (clauses)?
+    let t = BooleanTheory::new();
     let clause1 = Clause::new(vec![
-        Literal::new(equal(variable("x"), constant(Value::True)), false),
-        Literal::new(equal(variable("y"), constant(Value::True)), false),
+        Literal::new(t._equal(variable("x"), t._true())),
+        Literal::new(t._equal(variable("y"), t._true())),
     ]);
     let clause2 = Clause::new(vec![
-        Literal::new(equal(variable("x"), constant(Value::True)), false),
-        Literal::new(equal(variable("y"), constant(Value::False)), false),
+        Literal::new(t._equal(variable("x"), t._true())),
+        Literal::new(t._equal(variable("y"), t._false())),
     ]);
     let clause3 = Clause::new(vec![
-        Literal::new(equal(variable("x"), constant(Value::False)), false),
-        Literal::new(equal(variable("y"), constant(Value::True)), false),
+        Literal::new(t._equal(variable("x"), t._false())),
+        Literal::new(t._equal(variable("y"), t._true())),
     ]);
     let clause4 = Clause::new(vec![
-        Literal::new(equal(variable("x"), constant(Value::False)), false),
-        Literal::new(equal(variable("y"), constant(Value::False)), false),
+        Literal::new(t._equal(variable("x"), t._false())),
+        Literal::new(t._equal(variable("y"), t._false())),
     ]);
 
     let clauses = vec![clause1, clause2, clause3, clause4];

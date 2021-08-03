@@ -4,6 +4,7 @@ use crate::formula::formula::Formula;
 use crate::literal::Literal;
 use crate::term::term::{constant, variable, Term};
 use crate::trail::Trail;
+use crate::types::constant::Constant;
 use crate::types::function::Function;
 use crate::types::predicate::Predicate;
 use crate::types::value::Value;
@@ -35,8 +36,20 @@ impl BooleanTheory {
         }
     }
 
-    pub fn var(&self, id: &str) -> HConsed<Formula> {
-        equal(variable(id), constant(Value::True))
+    // pub fn var(&self, id: &str) -> HConsed<Formula> {
+    //     equal(variable(id), constant(Value::True))
+    // }
+
+    pub fn _true(&self) -> HConsed<Term> {
+        constant(Value::True)
+    }
+
+    pub fn _false(&self) -> HConsed<Term> {
+        constant(Value::False)
+    }
+
+    pub fn _equal(&self, lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Formula> {
+        equal(lhs, rhs)
     }
 }
 
@@ -90,11 +103,6 @@ impl Theory for BooleanTheory {
     }
 
     fn explain(&self) -> Clause {
-        // unimplemented!()
-        // TODO: this is hardcoded for now.
-        Clause::new(vec![
-            Literal::new(equal(variable("y"), constant(Value::True)), true),
-            Literal::new(equal(variable("y"), constant(Value::False)), true),
-        ])
+        unimplemented!()
     }
 }

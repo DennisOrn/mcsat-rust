@@ -197,7 +197,7 @@ impl Solver {
                                         .concat(),
                                     );
                                 } else {
-                                    new_conflict = Clause::new(vec![Literal::new(f(), false)]);
+                                    new_conflict = Clause::new(vec![Literal::new(f())]);
                                 }
 
                                 rules.push(Rule::Resolve(new_conflict));
@@ -221,7 +221,7 @@ impl Solver {
 
                 // UNSAT
                 // TODO: find another way to represent a "false" conflict clause.
-                if conflict == &Clause::new(vec![Literal::new(f(), /*vec![],*/ false)]) {
+                if conflict == &Clause::new(vec![Literal::new(f())]) {
                     rules.push(Rule::Unsat);
                 }
 
@@ -371,8 +371,8 @@ impl Solver {
         println!("{}", self);
 
         let explanation1 = Clause::new(vec![
-            Literal::new(equal(variable("y"), constant(Value::True)), true),
-            Literal::new(equal(variable("y"), constant(Value::False)), true),
+            Literal::new_negated(equal(variable("y"), constant(Value::True))),
+            Literal::new_negated(equal(variable("y"), constant(Value::False))),
         ]);
         self.apply(&Rule::TConflict(explanation1));
         println!("{}", self);
@@ -390,8 +390,8 @@ impl Solver {
         println!("{}", self);
 
         let explanation2 = Clause::new(vec![
-            Literal::new(equal(variable("y"), constant(Value::True)), true),
-            Literal::new(equal(variable("y"), constant(Value::False)), true),
+            Literal::new_negated(equal(variable("y"), constant(Value::True))),
+            Literal::new_negated(equal(variable("y"), constant(Value::False))),
         ]);
         self.apply(&Rule::TConflict(explanation2));
         println!("{}", self);
@@ -403,8 +403,8 @@ impl Solver {
         println!("{}", self);
 
         let explanation3 = Clause::new(vec![
-            Literal::new(equal(variable("x"), constant(Value::False)), true),
-            Literal::new(equal(variable("x"), constant(Value::True)), true),
+            Literal::new_negated(equal(variable("x"), constant(Value::False))),
+            Literal::new_negated(equal(variable("x"), constant(Value::True))),
         ]);
         self.apply(&Rule::TConflict(explanation3));
         println!("{}", self);

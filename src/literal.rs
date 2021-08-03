@@ -13,10 +13,17 @@ pub struct Literal {
 }
 
 impl Literal {
-    pub fn new(formula: HConsed<Formula>, is_negated: bool) -> Literal {
+    pub fn new(formula: HConsed<Formula>) -> Literal {
         Literal {
             formula: formula,
-            is_negated: is_negated,
+            is_negated: false,
+        }
+    }
+
+    pub fn new_negated(formula: HConsed<Formula>) -> Literal {
+        Literal {
+            formula: formula,
+            is_negated: true,
         }
     }
 
@@ -53,38 +60,16 @@ mod tests {
     fn test_evaluate_literal() {
         let model = Model::new();
 
+        assert_eq!(Literal::new(t()).evaluate(&model), Some(true));
+        assert_eq!(Literal::new_negated(t()).evaluate(&model), Some(false));
+        assert_eq!(Literal::new(f()).evaluate(&model), Some(false));
+        assert_eq!(Literal::new_negated(f()).evaluate(&model), Some(true));
         assert_eq!(
-            Literal::new(t(), /*vec![],*/ false).evaluate(&model),
-            Some(true)
-        );
-        assert_eq!(
-            Literal::new(t(), /*vec![],*/ true).evaluate(&model),
-            Some(false)
-        );
-        assert_eq!(
-            Literal::new(f(), /*vec![],*/ false).evaluate(&model),
-            Some(false)
-        );
-        assert_eq!(
-            Literal::new(f(), /*vec![],*/ true).evaluate(&model),
-            Some(true)
-        );
-        assert_eq!(
-            Literal::new(
-                equal(variable("x"), variable("y")),
-                // vec![variable("x"), variable("y")],
-                false,
-            )
-            .evaluate(&model),
+            Literal::new(equal(variable("x"), variable("y"))).evaluate(&model),
             None
         );
         assert_eq!(
-            Literal::new(
-                equal(variable("x"), variable("y")),
-                // vec![variable("x"), variable("y")],
-                true,
-            )
-            .evaluate(&model),
+            Literal::new_negated(equal(variable("x"), variable("y"))).evaluate(&model),
             None
         );
     }
