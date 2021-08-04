@@ -1,14 +1,11 @@
 use crate::clause::Clause;
 use crate::formula::formula::equal;
 use crate::formula::formula::Formula;
-use crate::literal::Literal;
 use crate::term::term::{constant, variable, Term};
 use crate::trail::Trail;
-use crate::types::constant::Constant;
 use crate::types::function::Function;
 use crate::types::predicate::Predicate;
 use crate::types::value::Value;
-use crate::types::variable::Variable;
 use hashconsing::HConsed;
 
 pub trait Theory {
@@ -48,8 +45,12 @@ impl BooleanTheory {
         constant(Value::False)
     }
 
-    pub fn _equal(&self, lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Formula> {
+    pub fn _eq(&self, lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Formula> {
         equal(lhs, rhs)
+    }
+
+    pub fn _var(&self, id: &str) -> HConsed<Term> {
+        variable(id)
     }
 }
 
