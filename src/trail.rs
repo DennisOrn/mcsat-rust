@@ -161,7 +161,12 @@ impl Trail {
     }
 
     pub fn is_infeasible(&self) -> bool {
-        // TODO: implement this (if we need it)
+        // Not consistent => infeasible.
+        // if !self.is_consistent() {
+        //     return true
+        // }
+
+        // TODO: trail can be infeasible even if it is consistent.
         unimplemented!()
     }
 
@@ -200,7 +205,7 @@ mod tests {
     fn test_push_pop() {
         let mut trail = Trail::new();
         let x = variable("x");
-        let l = Literal::new(t(), false);
+        let l = Literal::new(t());
         let c = Clause::new(vec![l.clone()]);
         trail.push_model_assignment(x.clone(), Value::Integer(1));
         trail.push_decided_literal(&l);
@@ -243,54 +248,54 @@ mod tests {
         // EXAMPLE 1 FROM MCSAT-PAPER
         // M = [x > 1, x ↦ 1, y ↦ 0, z > 0]
         let mut trail = Trail::new();
-        trail.push_decided_literal(&Literal::new(
-            greater(variable("x"), constant(Value::Integer(0))),
-            false,
-        ));
+        trail.push_decided_literal(&Literal::new(greater(
+            variable("x"),
+            constant(Value::Integer(0)),
+        )));
         trail.push_model_assignment(variable("x"), Value::Integer(1));
         trail.push_model_assignment(variable("y"), Value::Integer(0));
-        trail.push_decided_literal(&Literal::new(
-            greater(variable("z"), constant(Value::Integer(0))),
-            false,
-        ));
+        trail.push_decided_literal(&Literal::new(greater(
+            variable("z"),
+            constant(Value::Integer(0)),
+        )));
 
         assert_eq!(
-            trail.value_t(&Literal::new(
-                greater(variable("x"), constant(Value::Integer(0))),
-                false
-            )),
+            trail.value_t(&Literal::new(greater(
+                variable("x"),
+                constant(Value::Integer(0))
+            ))),
             Some(true),
             "expected: value_t(x > 0) == true"
         );
         assert_eq!(
-            trail.value_b(&Literal::new(
-                greater(variable("x"), constant(Value::Integer(0))),
-                false
-            )),
+            trail.value_b(&Literal::new(greater(
+                variable("x"),
+                constant(Value::Integer(0))
+            ))),
             Some(true),
             "expected: value_b(x > 0) == true"
         );
         assert_eq!(
-            trail.value_t(&Literal::new(
-                greater(variable("x"), constant(Value::Integer(1))),
-                false
-            )),
+            trail.value_t(&Literal::new(greater(
+                variable("x"),
+                constant(Value::Integer(1))
+            ))),
             Some(false),
             "expected: value_t(x > 1) == false"
         );
         assert_eq!(
-            trail.value_t(&Literal::new(
-                greater(variable("z"), constant(Value::Integer(0))),
-                false
-            )),
+            trail.value_t(&Literal::new(greater(
+                variable("z"),
+                constant(Value::Integer(0))
+            ))),
             None,
             "expected: value_t(z > 0) == None"
         );
         assert_eq!(
-            trail.value_b(&Literal::new(
-                greater(variable("z"), constant(Value::Integer(0))),
-                false
-            )),
+            trail.value_b(&Literal::new(greater(
+                variable("z"),
+                constant(Value::Integer(0))
+            ))),
             Some(true),
             "expected: value_b(z > 0) == true"
         );

@@ -50,25 +50,19 @@ impl std::fmt::Display for Rule {
     }
 }
 
-// pub struct Solver<'a> {
 pub struct Solver {
     theory: Box<dyn Theory>,
     state: State,
     trail: Trail,
     clauses: Vec<Clause>,
     undecided: VecDeque<HConsed<Term>>,
-    // TODO: move this somewhere else?
-    // TODO: rename
-    //map: HashMap<Variable, Vec<&'a Literal>>,
 }
 
-// impl Solver<'_> {
 impl Solver {
     pub fn new(
         theory: Box<dyn Theory>,
         clauses: Vec<Clause>,
-        undecided: VecDeque<HConsed<Term>>, // TODO: should this be used differently?
-                                            //map: HashMap<Variable, Vec<&'a Literal>>,
+        undecided: VecDeque<HConsed<Term>>,
     ) -> Solver {
         // Assert that all undecided terms are variables.
         for var in &undecided {
@@ -121,15 +115,6 @@ impl Solver {
             Rule::TConflict(explanation) => {
                 self.state = State::Conflict(explanation.clone());
             }
-            // Rule::TConsume => {
-            //     println!("{}", "T-CONSUME".blue());
-            //     match self.trail.pop() {
-            //         Some(TrailElement::ModelAssignment(variable, _)) => {
-            //             self.undecided.push_front(variable)
-            //         }
-            //         _ => (),
-            //     }
-            // }
             _ => unimplemented!("Tried to apply unimplemented rule: {}", rule),
         }
     }
@@ -169,15 +154,6 @@ impl Solver {
                                     .map(|l| l.clone())
                                     .collect();
 
-                                // println!("clause: {}", &clause);
-                                // println!("conflict_literal: {}", &conflict_literal);
-
-                                // print!("remaining_literals_conflict: ");
-                                // print_vec(&remaining_literals_conflict);
-
-                                // print!("remaining_literals_clause: ");
-                                // print_vec(&remaining_literals_clause);
-
                                 let new_conflict: Clause;
                                 if remaining_literals_conflict.len() > 0 {
                                     let remaining_literals_clause_no_duplicates: Vec<Literal> =
@@ -186,9 +162,6 @@ impl Solver {
                                             .filter(|l| !remaining_literals_conflict.contains(&l))
                                             .map(|l| l.clone())
                                             .collect();
-                                    // print!("remaining_literals_clause_no_duplicates: ");
-                                    // print_vec(&remaining_literals_clause_no_duplicates);
-
                                     new_conflict = Clause::new(
                                         [
                                             remaining_literals_conflict.as_slice(),
@@ -205,17 +178,6 @@ impl Solver {
                             }
                         }
                     }
-
-                    // T-CONSUME
-                    // Remove model assignment if it doesn't affect the value of the conflict clause.
-                    // TODO: inefficient.
-                    // Some(TrailElement::ModelAssignment(_, _)) => {
-                    //     let mut trail_clone = self.trail.clone();
-                    //     trail_clone.pop();
-                    //     if trail_clone.value_clause(conflict) == Some(false) {
-                    //         rules.push(Rule::TConsume);
-                    //     }
-                    // }
                     _ => (),
                 }
 
