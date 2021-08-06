@@ -23,19 +23,19 @@ impl Trail {
 
     pub fn push_decided_literal(&mut self, literal: &Literal) {
         let element = TrailElement::DecidedLiteral(literal.clone());
-        // println!("Push decided literal: {}", element);
+        // debug!("Push decided literal: {}", element);
         self.elements.push(element)
     }
 
     pub fn push_propagated_literal(&mut self, clause: &Clause, literal: &Literal) {
         let element = TrailElement::PropagatedLiteral(clause.clone(), literal.clone());
-        // println!("Push propagated literal: {}", element);
+        // debug!("Push propagated literal: {}", element);
         self.elements.push(element);
     }
 
     pub fn push_model_assignment(&mut self, variable: HConsed<Term>, value: Value) {
         let element = TrailElement::ModelAssignment(variable.clone(), value);
-        // println!("Push model assignment: {}", element);
+        // debug!("Push model assignment: {}", element);
         self.elements.push(element);
         self.model.set_value(variable.get().clone(), value);
     }
@@ -45,7 +45,7 @@ impl Trail {
         if removed_element.is_none() {
             return None;
         }
-        // println!("Pop: {}", removed_element.clone().unwrap());
+        // debug!("Pop: {}", removed_element.clone().unwrap());
 
         // If model assignment: clear the variable from the model.
         if let Some(TrailElement::ModelAssignment(var, _)) = &removed_element {
@@ -76,13 +76,13 @@ impl Trail {
     }
 
     pub fn value_literal(&self, literal: &Literal) -> Option<bool> {
-        // println!("value of literal {}", literal);
+        // debug!("value of literal {}", literal);
         let value_b = self.value_b(literal);
         if value_b.is_none() {
-            // println!("value_t {:?}", self.value_t(literal));
+            // debug!("value_t {:?}", self.value_t(literal));
             return self.value_t(literal);
         } else {
-            // println!("value_b {}", value_b.unwrap());
+            // debug!("value_b {}", value_b.unwrap());
             return value_b;
         }
     }
@@ -105,15 +105,15 @@ impl Trail {
         // let mut model_clone = self.model.clone();
 
         // for (var, val) in model_assignments {
-        //     println!("updating model: {} = {}", var, val);
+        //     debug!("updating model: {} = {}", var, val);
         //     model_clone.set_value(var.clone(), val);
         //     match literal.evaluate(&model_clone) {
         //         Some(true) => {
-        //             println!("evaluation returned true, return true\n");
+        //             debug!("evaluation returned true, return true\n");
         //             return Some(true);
         //         }
         //         Some(false) => {
-        //             println!("evaluation returned false, return false\n");
+        //             debug!("evaluation returned false, return false\n");
         //             return Some(false);
         //         }
         //         _ => (),
@@ -121,7 +121,7 @@ impl Trail {
         //     model_clone.clear_value(var.clone());
         // }
 
-        // println!("undefined, return None\n");
+        // debug!("undefined, return None\n");
         // None
 
         literal.evaluate(&self.model)
@@ -186,7 +186,7 @@ impl Trail {
 impl std::fmt::Display for Trail {
     fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
         let elements: Vec<String> = self.elements.iter().map(|x| x.to_string()).collect();
-        write!(fmt, "[{}]", elements.join(", "))
+        write!(fmt, "{}", elements.join("\n\t\t"))
     }
 }
 

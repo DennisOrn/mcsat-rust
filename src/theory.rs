@@ -66,7 +66,7 @@ impl Theory for BooleanTheory {
             trail_clone.push_model_assignment(variable.clone(), *value);
             if trail_clone.is_consistent() {
                 // Commit model assignment and return.
-                // println!("Push model assignment: {} = {}", variable, value);
+                // debug!("Push model assignment: {} = {}", variable, value);
                 // trail.push_model_assignment(variable, *value);
                 return Some(*value);
             } else {
