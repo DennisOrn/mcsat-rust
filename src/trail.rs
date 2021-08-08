@@ -4,7 +4,6 @@ use crate::model::Model;
 use crate::term::term::Term;
 use crate::trail_element::TrailElement;
 use crate::types::value::Value;
-use crate::types::variable::Variable;
 use hashconsing::HConsed;
 
 #[derive(Clone)]

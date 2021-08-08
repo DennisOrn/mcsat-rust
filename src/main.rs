@@ -20,26 +20,22 @@ use hashconsing::HConsed;
 use std::collections::VecDeque;
 
 use env_logger::Builder;
-use log::{debug, error, info, trace, warn, LevelFilter};
+use log::LevelFilter;
 use std::io::Write;
 
+/**
+Set the log level to adjust tha amount of information that is printed.
+From low to high priority: Trace / Debug / Info / Warn / Error
+*/
+static LOG_LEVEL: LevelFilter = LevelFilter::Debug;
+
 fn main() {
-    // env_logger::Builder::from_env(Env::default().default_filter_or("trace")).init();
     Builder::new()
         .format(|buf, record| writeln!(buf, "{}", record.args()))
-        .filter(None, LevelFilter::Trace)
+        .filter(None, LOG_LEVEL)
         .init();
 
-    error!("this is error log");
-    warn!("this is warning log");
-    info!("this is information log");
-    debug!("this is debug log");
-    trace!("this is trace log");
-
     example_unsat()
-    // for _ in 0..10000 {
-    //     example_unsat();
-    // }
 }
 
 fn example_unsat() {
@@ -69,6 +65,5 @@ fn example_unsat() {
     match solver.run_hardcoded() {
         true => println!("{}", "SAT".green()),
         false => println!("{}", "UNSAT".red()),
-        _ => (),
     }
 }

@@ -9,7 +9,7 @@ use crate::trail_element::TrailElement;
 use crate::types::value::Value;
 use colored::*;
 use hashconsing::HConsed;
-use log::info;
+use log::{debug, info};
 use std::collections::VecDeque;
 
 // Debug function for printing vectors.
@@ -222,31 +222,6 @@ impl Solver {
                 }
             }
             State::Search => {
-                /* Place T-DECIDE first if last trail element is propagated literal,
-                and the variable does not have a value. */
-                // TODO: specific for boolean theory?
-
-                // T-DECIDE
-                // TODO: check if this really works.
-                // if let Some(variable) = self.undecided.front() {
-                //     let values = vec![Value::True, Value::False]; // TODO: hardcoded.
-                //     for value in &values {
-                //         let literal = Literal::new(
-                //             equal(variable.clone(), constant(*value)),
-                //             // vec![variable.clone()],
-                //             false,
-                //         );
-                //         match self.trail.value_literal(&literal) {
-                //             Some(true) | None => {
-                //                 debug!("able to t-decide: {} {}", variable.clone(), value);
-                //                 rules.push(Rule::TDecide(variable.clone(), *value));
-                //                 break;
-                //             }
-                //             _ => (),
-                //         }
-                //     }
-                // }
-
                 let mut conflict_clause: Option<Clause> = None;
                 let mut propagation_clause: Option<Clause> = None;
                 let mut propagation_literal: Option<Literal> = None;
@@ -309,9 +284,9 @@ impl Solver {
         // Print available rules.
         let rules_list: Vec<String> = rules.iter().map(|x| x.to_string()).collect();
         if rules_list.len() == 0 {
-            info!("{}", "NO RULES AVAILABLE".yellow());
+            debug!("{}", "NO RULES AVAILABLE".yellow());
         } else {
-            info!(
+            debug!(
                 "{}\n{}",
                 "RULES AVAILABLE:".yellow(),
                 rules_list.join("\n").yellow()
@@ -326,56 +301,56 @@ impl Solver {
 
     pub fn run_hardcoded(&mut self) -> bool {
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
 
         let explanation1 = Clause::new(vec![
             Literal::new_negated(equal(variable("y"), constant(Value::True))),
             Literal::new_negated(equal(variable("y"), constant(Value::False))),
         ]);
         self.apply(&Rule::TConflict(explanation1));
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
 
         let explanation2 = Clause::new(vec![
             Literal::new_negated(equal(variable("y"), constant(Value::True))),
             Literal::new_negated(equal(variable("y"), constant(Value::False))),
         ]);
         self.apply(&Rule::TConflict(explanation2));
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
 
         let explanation3 = Clause::new(vec![
             Literal::new_negated(equal(variable("x"), constant(Value::False))),
             Literal::new_negated(equal(variable("x"), constant(Value::True))),
         ]);
         self.apply(&Rule::TConflict(explanation3));
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
-        info!("{}", self);
+        debug!("{}", self);
 
         false
     }
@@ -395,13 +370,13 @@ impl Solver {
                 _ => (),
             }
 
-            info!("ITERATION {}", iteration_counter);
+            debug!("ITERATION {}", iteration_counter);
 
             let rules = self.get_available_rules();
             let rule = rules.first().unwrap(); // TODO: potentially unsafe
             self.apply(&rule);
 
-            info!("{}", self);
+            debug!("{}", self);
 
             // Press enter for each step.
             let _ = std::io::stdin().read_line(&mut String::new());
