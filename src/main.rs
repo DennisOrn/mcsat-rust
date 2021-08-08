@@ -61,8 +61,8 @@ fn example_unsat() {
     let undecided: VecDeque<HConsed<Term>> = VecDeque::from(vec![t._var("x"), t._var("y")]);
     let mut solver = Solver::new(Box::new(t), clauses, undecided);
 
-    // match solver.run() {
-    match solver.run_hardcoded() {
+    // match solver.run_hardcoded() {
+    match solver.run() {
         true => println!("{}", "SAT".green()),
         false => println!("{}", "UNSAT".red()),
     }

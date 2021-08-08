@@ -18,9 +18,9 @@ where
     T: std::fmt::Display,
 {
     for i in v.iter() {
-        print!("{}", i);
+        debug!("{}", i);
     }
-    info!("");
+    debug!("");
 }
 
 enum Rule {
@@ -56,6 +56,7 @@ pub struct Solver {
     state: State,
     trail: Trail,
     clauses: Vec<Clause>,
+    variables: VecDeque<HConsed<Term>>,
     undecided: VecDeque<HConsed<Term>>,
 }
 
@@ -63,10 +64,10 @@ impl Solver {
     pub fn new(
         theory: Box<dyn Theory>,
         clauses: Vec<Clause>,
-        undecided: VecDeque<HConsed<Term>>,
+        variables: VecDeque<HConsed<Term>>,
     ) -> Solver {
         // Assert that all undecided terms are variables.
-        for var in &undecided {
+        for var in &variables {
             assert!(matches!(var.get(), Term::Variable(_)))
         }
         Solver {
@@ -74,7 +75,8 @@ impl Solver {
             state: State::Search,
             trail: Trail::new(),
             clauses: clauses,
-            undecided: undecided,
+            variables: variables.clone(),
+            undecided: variables,
         }
     }
 
@@ -266,6 +268,11 @@ impl Solver {
                     }
                 }
 
+                // T-CONFLICT
+                if let Some(clause) = self.theory.conflict(&self.variables, &self.trail) {
+                    rules.push(Rule::TConflict(clause))
+                }
+
                 // T-DECIDE
                 if let Some(variable) = self.undecided.front() {
                     if let Some(value) = self.theory.decide(variable, &self.trail) {
@@ -307,11 +314,13 @@ impl Solver {
         self.apply(&self.get_available_rules().first().unwrap());
         debug!("{}", self);
 
-        let explanation1 = Clause::new(vec![
-            Literal::new_negated(equal(variable("y"), constant(Value::True))),
-            Literal::new_negated(equal(variable("y"), constant(Value::False))),
-        ]);
-        self.apply(&Rule::TConflict(explanation1));
+        // let explanation1 = Clause::new(vec![
+        //     Literal::new_negated(equal(variable("y"), constant(Value::True))),
+        //     Literal::new_negated(equal(variable("y"), constant(Value::False))),
+        // ]);
+        // self.apply(&Rule::TConflict(explanation1));
+        self.apply(&self.get_available_rules().first().unwrap());
+
         debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
         debug!("{}", self);
@@ -326,11 +335,13 @@ impl Solver {
         self.apply(&self.get_available_rules().first().unwrap());
         debug!("{}", self);
 
-        let explanation2 = Clause::new(vec![
-            Literal::new_negated(equal(variable("y"), constant(Value::True))),
-            Literal::new_negated(equal(variable("y"), constant(Value::False))),
-        ]);
-        self.apply(&Rule::TConflict(explanation2));
+        // let explanation2 = Clause::new(vec![
+        //     Literal::new_negated(equal(variable("y"), constant(Value::True))),
+        //     Literal::new_negated(equal(variable("y"), constant(Value::False))),
+        // ]);
+        // self.apply(&Rule::TConflict(explanation2));
+        self.apply(&self.get_available_rules().first().unwrap());
+
         debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
         debug!("{}", self);
@@ -339,11 +350,13 @@ impl Solver {
         self.apply(&self.get_available_rules().first().unwrap());
         debug!("{}", self);
 
-        let explanation3 = Clause::new(vec![
-            Literal::new_negated(equal(variable("x"), constant(Value::False))),
-            Literal::new_negated(equal(variable("x"), constant(Value::True))),
-        ]);
-        self.apply(&Rule::TConflict(explanation3));
+        // let explanation3 = Clause::new(vec![
+        //     Literal::new_negated(equal(variable("x"), constant(Value::False))),
+        //     Literal::new_negated(equal(variable("x"), constant(Value::True))),
+        // ]);
+        // self.apply(&Rule::TConflict(explanation3));
+        self.apply(&self.get_available_rules().first().unwrap());
+
         debug!("{}", self);
         self.apply(&self.get_available_rules().first().unwrap());
         debug!("{}", self);

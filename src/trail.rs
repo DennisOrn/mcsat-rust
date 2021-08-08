@@ -159,16 +159,6 @@ impl Trail {
         true
     }
 
-    pub fn is_infeasible(&self) -> bool {
-        // Not consistent => infeasible.
-        // if !self.is_consistent() {
-        //     return true
-        // }
-
-        // TODO: trail can be infeasible even if it is consistent.
-        unimplemented!()
-    }
-
     fn all_literals(&self) -> Vec<&Literal> {
         // TODO: inefficient to loop each time function is called.
         self.elements
@@ -192,7 +182,7 @@ impl std::fmt::Display for Trail {
 #[cfg(test)]
 mod tests {
     use crate::clause::Clause;
-    use crate::formula::formula::{greater, t};
+    use crate::formula::formula::{equal, greater, t};
     use crate::literal::Literal;
     use crate::term::term::{constant, variable};
     use crate::trail::Trail;
@@ -297,6 +287,22 @@ mod tests {
             ))),
             Some(true),
             "expected: value_b(z > 0) == true"
+        );
+    }
+
+    #[test]
+    fn test_literal_value_2() {
+        let mut trail = Trail::new();
+        trail.push_decided_literal(&Literal::new(equal(variable("x"), constant(Value::True))));
+        assert_eq!(
+            trail.value_literal(&Literal::new(equal(variable("x"), constant(Value::True)))),
+            Some(true),
+            "expected: value(x = True) == true"
+        );
+        assert_eq!(
+            trail.value_literal(&Literal::new(equal(constant(Value::True), variable("x")))),
+            Some(true),
+            "expected: value(True = x) == true"
         );
     }
 

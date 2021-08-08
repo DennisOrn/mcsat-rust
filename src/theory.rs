@@ -1,21 +1,22 @@
 use crate::clause::Clause;
-use crate::formula::formula::equal;
-use crate::formula::formula::Formula;
+use crate::formula::formula::{equal, Formula};
+use crate::literal::Literal;
 use crate::term::term::{constant, variable, Term};
 use crate::trail::Trail;
 use crate::types::function::Function;
 use crate::types::predicate::Predicate;
 use crate::types::value::Value;
 use hashconsing::HConsed;
+use std::collections::VecDeque;
 
 pub trait Theory {
     fn propagate(&self);
     fn decide(&self, variable: &HConsed<Term>, trail: &Trail) -> Option<Value>;
-    fn conflict(&self) -> Clause;
+    fn conflict(&self, variables: &VecDeque<HConsed<Term>>, trail: &Trail) -> Option<Clause>;
     fn consume(&self);
     fn backjump_decide(&self);
 
-    fn explain(&self) -> Clause;
+    // fn explain(&self) -> Clause;
 }
 
 pub struct BooleanTheory {
@@ -91,8 +92,26 @@ impl Theory for BooleanTheory {
         // None
     }
 
-    fn conflict(&self) -> Clause {
-        self.explain()
+    fn conflict(&self, variables: &VecDeque<HConsed<Term>>, trail: &Trail) -> Option<Clause> {
+        for variable in variables {
+            // Construct two literals, var = true and var = false, and check their values.
+            // If both are true, the trail is infeasible.
+            let literal_true = Literal::new(equal(variable.clone(), constant(Value::True)));
+            let literal_false = Literal::new(equal(variable.clone(), constant(Value::False)));
+            let literal_true_value = trail.value_literal(&literal_true);
+            let literal_false_value = trail.value_literal(&literal_false);
+
+            match (literal_true_value, literal_false_value) {
+                (Some(true), Some(true)) => {
+                    let explanation =
+                        Clause::new(vec![literal_true.negate(), literal_false.negate()]);
+                    return Some(explanation);
+                }
+                _ => (),
+            }
+        }
+
+        None
     }
 
     fn consume(&self) {
@@ -103,7 +122,7 @@ impl Theory for BooleanTheory {
         unimplemented!()
     }
 
-    fn explain(&self) -> Clause {
-        unimplemented!()
-    }
+    // fn explain(&self) -> Clause {
+    //     unimplemented!()
+    // }
 }
