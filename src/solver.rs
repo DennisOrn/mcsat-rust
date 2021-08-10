@@ -306,68 +306,6 @@ impl Solver {
         rules
     }
 
-    pub fn run_hardcoded(&mut self) -> bool {
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-
-        // let explanation1 = Clause::new(vec![
-        //     Literal::new_negated(equal(variable("y"), constant(Value::True))),
-        //     Literal::new_negated(equal(variable("y"), constant(Value::False))),
-        // ]);
-        // self.apply(&Rule::TConflict(explanation1));
-        self.apply(&self.get_available_rules().first().unwrap());
-
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-
-        // let explanation2 = Clause::new(vec![
-        //     Literal::new_negated(equal(variable("y"), constant(Value::True))),
-        //     Literal::new_negated(equal(variable("y"), constant(Value::False))),
-        // ]);
-        // self.apply(&Rule::TConflict(explanation2));
-        self.apply(&self.get_available_rules().first().unwrap());
-
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-
-        // let explanation3 = Clause::new(vec![
-        //     Literal::new_negated(equal(variable("x"), constant(Value::False))),
-        //     Literal::new_negated(equal(variable("x"), constant(Value::True))),
-        // ]);
-        // self.apply(&Rule::TConflict(explanation3));
-        self.apply(&self.get_available_rules().first().unwrap());
-
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-        self.apply(&self.get_available_rules().first().unwrap());
-        debug!("{}", self);
-
-        false
-    }
-
     pub fn run(&mut self) -> bool {
         // TODO: add clauses as decided literals here (?)
 
