@@ -1,5 +1,5 @@
 [package]
-name = "mcsat-rust"
+name = "mcsat_rust"
 version = "0.1.0"
 authors = ["Dennis Örnberg <dennis.ornberg@gmail.com>"]
 edition = "2018"

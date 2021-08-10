@@ -392,7 +392,7 @@ impl Solver {
             debug!("{}", self);
 
             // Press enter for each step.
-            let _ = std::io::stdin().read_line(&mut String::new());
+            // let _ = std::io::stdin().read_line(&mut String::new());
 
             iteration_counter += 1;
         }
