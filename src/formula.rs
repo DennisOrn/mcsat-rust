@@ -10,7 +10,7 @@ pub mod formula {
     pub enum Formula {
         True,
         False,
-        Predicate(Predicate, Vec<HConsed<Term>>), // TODO: Vec or just two args?
+        Predicate(Predicate, Vec<HConsed<Term>>),
     }
     impl Formula {
         pub fn evaluate(&self, model: &Model) -> Option<bool> {
@@ -18,7 +18,6 @@ pub mod formula {
                 Formula::True => Some(true),
                 Formula::False => Some(false),
                 Formula::Predicate(predicate, args) => {
-                    // TODO: lazy evaluation?
                     let values: Vec<Value> = args.iter().flat_map(|x| x.evaluate(model)).collect();
                     if values.len() == args.len() {
                         return Some(predicate.evaluate(&values));

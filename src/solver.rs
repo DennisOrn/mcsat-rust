@@ -228,7 +228,6 @@ impl Solver {
                 let mut propagation_clause: Option<Clause> = None;
                 let mut propagation_literal: Option<Literal> = None;
                 for clause in &self.clauses {
-                    // TODO: quit loop early if conflict/propagation found?
                     if conflict_clause == None {
                         // Check for conflict.
                         match self.trail.value_clause(&clause) {

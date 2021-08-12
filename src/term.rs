@@ -11,18 +11,17 @@ pub mod term {
     pub enum Term {
         Variable(Variable),
         Constant(Constant),
-        Function(Function, Vec<HConsed<Term>>), // TODO: Vec or just two args?
+        Function(Function, Vec<HConsed<Term>>),
     }
     impl Term {
         pub fn evaluate(&self, model: &Model) -> Option<Value> {
             match self {
-                Term::Variable(variable) => match model.get_value(self) {
+                Term::Variable(_) => match model.get_value(self) {
                     Some(value) => Some(value.clone()),
                     None => None,
                 },
                 Term::Constant(constant) => Some(constant.evaluate()),
                 Term::Function(function, args) => {
-                    // TODO: lazy evaluation?
                     let values: Vec<Value> = args.iter().flat_map(|x| x.evaluate(model)).collect();
                     if values.len() == args.len() {
                         return Some(function.evaluate(&values));

@@ -3,8 +3,7 @@ use crate::types::value::Value;
 
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
 pub struct Variable {
-    id: String, // TODO: usize is probably more efficient than String.
-                // TODO: add member indicating whether variable is negated?
+    id: String,
 }
 impl Variable {
     pub fn new(id: &str) -> Variable {

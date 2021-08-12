@@ -2,7 +2,6 @@ use crate::types::value::Value;
 
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
 pub enum Function {
-    // TODO: implement hashconsing for this?
     Plus,
     Minus,
 }

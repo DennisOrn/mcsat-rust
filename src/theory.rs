@@ -3,8 +3,6 @@ use crate::formula::formula::{equal, Formula};
 use crate::literal::Literal;
 use crate::term::term::{constant, variable, Term};
 use crate::trail::Trail;
-use crate::types::function::Function;
-use crate::types::predicate::Predicate;
 use crate::types::value::Value;
 use hashconsing::HConsed;
 use std::collections::VecDeque;
@@ -19,24 +17,12 @@ pub trait Theory {
     // fn explain(&self) -> Clause;
 }
 
-pub struct BooleanTheory {
-    predicates: Vec<Predicate>,
-    functions: Vec<Function>,
-    values: Vec<Value>,
-}
+pub struct BooleanTheory {}
 
 impl BooleanTheory {
     pub fn new() -> BooleanTheory {
-        BooleanTheory {
-            predicates: vec![Predicate::Equal],
-            functions: vec![],
-            values: vec![Value::True, Value::False],
-        }
+        BooleanTheory {}
     }
-
-    // pub fn var(&self, id: &str) -> HConsed<Formula> {
-    //     equal(variable(id), constant(Value::True))
-    // }
 
     pub fn _true(&self) -> HConsed<Term> {
         constant(Value::True)
@@ -62,8 +48,9 @@ impl Theory for BooleanTheory {
 
     fn decide(&self, variable: &HConsed<Term>, trail: &Trail) -> Option<Value> {
         // Create clone of trail to avoid pushing and popping on the "real" trail.
+        let values = [Value::True, Value::False];
         let mut trail_clone = trail.clone();
-        for value in &self.values {
+        for value in &values {
             trail_clone.push_model_assignment(variable.clone(), *value);
             if trail_clone.is_consistent() {
                 // Commit model assignment and return.
@@ -75,21 +62,6 @@ impl Theory for BooleanTheory {
             }
         }
         None
-
-        // for value in &self.values {
-        //     let literal = Literal::new(
-        //         equal(variable.clone(), constant(*value)),
-        //         // vec![variable.clone()],
-        //         false,
-        //     );
-        //     match trail.value_literal(&literal) {
-        //         Some(true) | None => {
-        //             return Some(*value);
-        //         }
-        //         _ => (),
-        //     }
-        // }
-        // None
     }
 
     fn conflict(&self, variables: &VecDeque<HConsed<Term>>, trail: &Trail) -> Option<Clause> {

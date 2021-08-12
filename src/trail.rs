@@ -160,7 +160,6 @@ impl Trail {
     }
 
     fn all_literals(&self) -> Vec<&Literal> {
-        // TODO: inefficient to loop each time function is called.
         self.elements
             .iter()
             .flat_map(|x| match x {
