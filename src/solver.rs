@@ -1,5 +1,5 @@
 use crate::clause::Clause;
-use crate::formula::formula::{equal, f};
+use crate::formula::formula::f;
 use crate::literal::Literal;
 use crate::state::State;
 use crate::term::term::{constant, variable, Term};
@@ -306,8 +306,6 @@ impl Solver {
     }
 
     pub fn run(&mut self) -> bool {
-        // TODO: add clauses as decided literals here (?)
-
         let mut iteration_counter = 1;
         loop {
             assert!(self.trail.is_consistent());
@@ -323,7 +321,7 @@ impl Solver {
             debug!("ITERATION {}", iteration_counter);
 
             let rules = self.get_available_rules();
-            let rule = rules.first().unwrap(); // TODO: potentially unsafe
+            let rule = rules.first().unwrap();
             self.apply(&rule);
 
             debug!("{}", self);

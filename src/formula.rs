@@ -61,6 +61,10 @@ pub mod formula {
         FACTORY.mk(Formula::Predicate(Predicate::Equal, vec![lhs, rhs]))
     }
 
+    // pub fn predicate(n: usize, lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Formula> {
+    //     FACTORY.mk(Formula::Predicate(Predicate::Predicate(n), vec![lhs, rhs]))
+    // }
+
     impl std::fmt::Display for Formula {
         fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
             match self {

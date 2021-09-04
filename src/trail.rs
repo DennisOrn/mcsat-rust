@@ -181,7 +181,7 @@ impl std::fmt::Display for Trail {
 #[cfg(test)]
 mod tests {
     use crate::clause::Clause;
-    use crate::formula::formula::{equal, greater, t};
+    use crate::formula::formula::{greater, t};
     use crate::literal::Literal;
     use crate::term::term::{constant, variable};
     use crate::trail::Trail;
@@ -289,21 +289,21 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_literal_value_2() {
-        let mut trail = Trail::new();
-        trail.push_decided_literal(&Literal::new(equal(variable("x"), constant(Value::True))));
-        assert_eq!(
-            trail.value_literal(&Literal::new(equal(variable("x"), constant(Value::True)))),
-            Some(true),
-            "expected: value(x = True) == true"
-        );
-        assert_eq!(
-            trail.value_literal(&Literal::new(equal(constant(Value::True), variable("x")))),
-            Some(true),
-            "expected: value(True = x) == true"
-        );
-    }
+    // #[test]
+    // fn test_literal_value_2() {
+    //     let mut trail = Trail::new();
+    //     trail.push_decided_literal(&Literal::new(equal(variable("x"), constant(Value::True))));
+    //     assert_eq!(
+    //         trail.value_literal(&Literal::new(equal(variable("x"), constant(Value::True)))),
+    //         Some(true),
+    //         "expected: value(x = True) == true"
+    //     );
+    //     assert_eq!(
+    //         trail.value_literal(&Literal::new(equal(constant(Value::True), variable("x")))),
+    //         Some(true),
+    //         "expected: value(True = x) == true"
+    //     );
+    // }
 
     #[test]
     fn test_clause_value() {

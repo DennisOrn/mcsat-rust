@@ -32,7 +32,7 @@ pub fn configure_logger(level: LevelFilter) {
         .init();
 }
 
-pub fn example_solver_unsat() -> Solver {
+pub fn example_solver_unsat_1() -> Solver {
     let t = BooleanTheory::new();
     let clause1 = Clause::new(vec![
         Literal::new(t._eq(t._var("x"), t._true())),
@@ -53,7 +53,100 @@ pub fn example_solver_unsat() -> Solver {
 
     let clauses = vec![clause1, clause2, clause3, clause4];
     let undecided = VecDeque::from(vec![t._var("x"), t._var("y")]);
-    let solver = Solver::new(Box::new(t), clauses, undecided);
+    Solver::new(Box::new(t), clauses, undecided)
+}
 
-    solver
+pub fn example_solver_unsat_2() -> Solver {
+    let t = BooleanTheory::new();
+    let clause1 = Clause::new(vec![
+        Literal::new(t._eq(t._var("x"), t._true())),
+        Literal::new(t._eq(t._var("y"), t._true())),
+        Literal::new(t._eq(t._var("z"), t._true())),
+    ]);
+    let clause2 = Clause::new(vec![
+        Literal::new(t._eq(t._var("x"), t._true())),
+        Literal::new(t._eq(t._var("y"), t._true())),
+        Literal::new(t._eq(t._var("z"), t._false())),
+    ]);
+    let clause3 = Clause::new(vec![
+        Literal::new(t._eq(t._var("x"), t._true())),
+        Literal::new(t._eq(t._var("y"), t._false())),
+        Literal::new(t._eq(t._var("z"), t._true())),
+    ]);
+    let clause4 = Clause::new(vec![
+        Literal::new(t._eq(t._var("x"), t._true())),
+        Literal::new(t._eq(t._var("y"), t._false())),
+        Literal::new(t._eq(t._var("z"), t._false())),
+    ]);
+    let clause5 = Clause::new(vec![
+        Literal::new(t._eq(t._var("x"), t._false())),
+        Literal::new(t._eq(t._var("y"), t._true())),
+        Literal::new(t._eq(t._var("z"), t._true())),
+    ]);
+    let clause6 = Clause::new(vec![
+        Literal::new(t._eq(t._var("x"), t._false())),
+        Literal::new(t._eq(t._var("y"), t._true())),
+        Literal::new(t._eq(t._var("z"), t._false())),
+    ]);
+    let clause7 = Clause::new(vec![
+        Literal::new(t._eq(t._var("x"), t._false())),
+        Literal::new(t._eq(t._var("y"), t._false())),
+        Literal::new(t._eq(t._var("z"), t._true())),
+    ]);
+    let clause8 = Clause::new(vec![
+        Literal::new(t._eq(t._var("x"), t._false())),
+        Literal::new(t._eq(t._var("y"), t._false())),
+        Literal::new(t._eq(t._var("z"), t._false())),
+    ]);
+
+    let clauses = vec![
+        clause1, clause2, clause3, clause4, clause5, clause6, clause7, clause8,
+    ];
+    let undecided = VecDeque::from(vec![t._var("x"), t._var("y"), t._var("z")]);
+    Solver::new(Box::new(t), clauses, undecided)
+}
+
+pub fn example_solver_sat_1() -> Solver {
+    let t = BooleanTheory::new();
+    let clause1 = Clause::new(vec![Literal::new(t._eq(t._var("x"), t._true()))]);
+
+    let clauses = vec![clause1];
+    let undecided = VecDeque::from(vec![t._var("x")]);
+    Solver::new(Box::new(t), clauses, undecided)
+}
+
+pub fn example_solver_sat_2() -> Solver {
+    let t = BooleanTheory::new();
+    let clause1 = Clause::new(vec![
+        Literal::new(t._eq(t._var("x"), t._true())),
+        Literal::new(t._eq(t._var("y"), t._true())),
+    ]);
+    let clause2 = Clause::new(vec![
+        Literal::new(t._eq(t._var("x"), t._false())),
+        Literal::new(t._eq(t._var("y"), t._false())),
+    ]);
+
+    let clauses = vec![clause1, clause2];
+    let undecided = VecDeque::from(vec![t._var("x"), t._var("y")]);
+    Solver::new(Box::new(t), clauses, undecided)
+}
+
+#[test]
+fn test_sat_1() {
+    assert_eq!(example_solver_sat_1().run(), true);
+}
+
+#[test]
+fn test_sat_2() {
+    assert_eq!(example_solver_sat_2().run(), true);
+}
+
+#[test]
+fn test_unsat_1() {
+    assert_eq!(example_solver_unsat_1().run(), false);
+}
+
+#[test]
+fn test_unsat_2() {
+    assert_eq!(example_solver_unsat_2().run(), false);
 }

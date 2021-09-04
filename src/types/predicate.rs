@@ -1,13 +1,14 @@
+// use crate::theory::MyPredicates;
 use crate::types::value::Value;
 
 #[derive(Debug, Hash, Clone, PartialEq, Eq)]
 pub enum Predicate {
-    // TODO: implement hashconsing for this?
     Less,
     LessEqual,
     Greater,
     GreaterEqual,
     Equal,
+    // Predicate(usize),
 }
 impl Predicate {
     pub fn evaluate(&self, args: &Vec<Value>) -> bool {
@@ -18,6 +19,7 @@ impl Predicate {
             Predicate::Greater => args[0] > args[1],
             Predicate::GreaterEqual => args[0] >= args[1],
             Predicate::Equal => args[0] == args[1],
+            // Predicate::Predicate(n) => MyPredicates::evaluate(n, args),
         }
     }
 }
@@ -30,6 +32,7 @@ impl std::fmt::Display for Predicate {
             Predicate::LessEqual => write!(fmt, "≤"),
             Predicate::GreaterEqual => write!(fmt, "≥"),
             Predicate::Equal => write!(fmt, "="),
+            // Predicate::Predicate(n) => write!(fmt, "{}", MyPredicates::to_string(n)),
         }
     }
 }

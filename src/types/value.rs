@@ -12,7 +12,7 @@ impl Add<Value> for Value {
     fn add(self, other: Value) -> Value {
         match (self, other) {
             (Value::Integer(lhs), Value::Integer(rhs)) => Value::Integer(lhs + rhs),
-            _ => panic!("Cannot add boolean values"),
+            _ => panic!("Cannot add {} and {}", self, other),
         }
     }
 }
@@ -22,7 +22,7 @@ impl Sub<Value> for Value {
     fn sub(self, other: Value) -> Value {
         match (self, other) {
             (Value::Integer(lhs), Value::Integer(rhs)) => Value::Integer(lhs - rhs),
-            _ => panic!("Cannot subtract boolean values"),
+            _ => panic!("Cannot subtract {} and {}", self, other),
         }
     }
 }

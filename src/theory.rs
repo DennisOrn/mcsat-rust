@@ -3,6 +3,7 @@ use crate::formula::formula::{equal, Formula};
 use crate::literal::Literal;
 use crate::term::term::{constant, variable, Term};
 use crate::trail::Trail;
+use crate::types::predicate::Predicate;
 use crate::types::value::Value;
 use hashconsing::HConsed;
 use std::collections::VecDeque;
@@ -16,6 +17,26 @@ pub trait Theory {
 
     // fn explain(&self) -> Clause;
 }
+
+// pub enum MyPredicates {}
+
+// impl MyPredicates {
+//     const EQUAL: usize = 0;
+
+//     pub fn evaluate(n: &usize, args: &Vec<Value>) -> bool {
+//         match n {
+//             &MyPredicates::EQUAL => args[0] == args[1],
+//             _ => panic!(),
+//         }
+//     }
+
+//     pub fn to_string(n: &usize) -> String {
+//         match n {
+//             &MyPredicates::EQUAL => String::from("="),
+//             _ => panic!(),
+//         }
+//     }
+// }
 
 pub struct BooleanTheory {}
 
@@ -33,6 +54,7 @@ impl BooleanTheory {
     }
 
     pub fn _eq(&self, lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Formula> {
+        // predicate(MyPredicates::EQUAL, lhs, rhs)
         equal(lhs, rhs)
     }
 
@@ -70,6 +92,18 @@ impl Theory for BooleanTheory {
             // If both are true, the trail is infeasible.
             let literal_true = Literal::new(equal(variable.clone(), constant(Value::True)));
             let literal_false = Literal::new(equal(variable.clone(), constant(Value::False)));
+
+            // let literal_true = Literal::new(predicate(
+            //     MyPredicates::EQUAL,
+            //     variable.clone(),
+            //     constant(Value::True),
+            // ));
+            // let literal_false = Literal::new(predicate(
+            //     MyPredicates::EQUAL,
+            //     variable.clone(),
+            //     constant(Value::False),
+            // ));
+
             let literal_true_value = trail.value_literal(&literal_true);
             let literal_false_value = trail.value_literal(&literal_false);
 
