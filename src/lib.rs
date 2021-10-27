@@ -108,15 +108,6 @@ pub fn example_solver_unsat_2() -> Solver {
 
 pub fn example_solver_sat_1() -> Solver {
     let t = BooleanTheory::new();
-    let clause1 = Clause::new(vec![Literal::new(t._eq(t._var("x"), t._true()))]);
-
-    let clauses = vec![clause1];
-    let undecided = VecDeque::from(vec![t._var("x")]);
-    Solver::new(Box::new(t), clauses, undecided)
-}
-
-pub fn example_solver_sat_2() -> Solver {
-    let t = BooleanTheory::new();
     let clause1 = Clause::new(vec![
         Literal::new(t._eq(t._var("x"), t._true())),
         Literal::new(t._eq(t._var("y"), t._true())),
@@ -128,6 +119,80 @@ pub fn example_solver_sat_2() -> Solver {
 
     let clauses = vec![clause1, clause2];
     let undecided = VecDeque::from(vec![t._var("x"), t._var("y")]);
+    Solver::new(Box::new(t), clauses, undecided)
+}
+
+pub fn example_solver_sat_2() -> Solver {
+    let t = BooleanTheory::new();
+    let clause1 = Clause::new(vec![Literal::new(t._eq(t._var("x"), t._true()))]);
+
+    let clauses = vec![clause1];
+    let undecided = VecDeque::from(vec![t._var("x")]);
+    Solver::new(Box::new(t), clauses, undecided)
+}
+
+pub fn example_solver_pigeonhole_1() -> Solver {
+    let t = BooleanTheory::new();
+    let clause1 = Clause::new(vec![Literal::new(t._eq(t._var("one"), t._true()))]);
+    let clause2 = Clause::new(vec![Literal::new(t._eq(t._var("two"), t._true()))]);
+    let clause3 = Clause::new(vec![
+        Literal::new(t._eq(t._var("one"), t._false())),
+        Literal::new(t._eq(t._var("two"), t._false())),
+    ]);
+    let clauses = vec![clause1, clause2, clause3];
+    let undecided = VecDeque::from(vec![t._var("one"), t._var("two")]);
+    Solver::new(Box::new(t), clauses, undecided)
+}
+
+pub fn example_solver_pigeonhole_2() -> Solver {
+    let t = BooleanTheory::new();
+    let clause1 = Clause::new(vec![
+        Literal::new(t._eq(t._var("one"), t._true())),
+        Literal::new(t._eq(t._var("two"), t._true())),
+    ]);
+    let clause2 = Clause::new(vec![
+        Literal::new(t._eq(t._var("three"), t._true())),
+        Literal::new(t._eq(t._var("four"), t._true())),
+    ]);
+    let clause3 = Clause::new(vec![
+        Literal::new(t._eq(t._var("five"), t._true())),
+        Literal::new(t._eq(t._var("six"), t._true())),
+    ]);
+    let clause4 = Clause::new(vec![
+        Literal::new(t._eq(t._var("one"), t._false())),
+        Literal::new(t._eq(t._var("three"), t._false())),
+    ]);
+    let clause5 = Clause::new(vec![
+        Literal::new(t._eq(t._var("one"), t._false())),
+        Literal::new(t._eq(t._var("five"), t._false())),
+    ]);
+    let clause6 = Clause::new(vec![
+        Literal::new(t._eq(t._var("three"), t._false())),
+        Literal::new(t._eq(t._var("five"), t._false())),
+    ]);
+    let clause7 = Clause::new(vec![
+        Literal::new(t._eq(t._var("two"), t._false())),
+        Literal::new(t._eq(t._var("four"), t._false())),
+    ]);
+    let clause8 = Clause::new(vec![
+        Literal::new(t._eq(t._var("two"), t._false())),
+        Literal::new(t._eq(t._var("six"), t._false())),
+    ]);
+    let clause9 = Clause::new(vec![
+        Literal::new(t._eq(t._var("four"), t._false())),
+        Literal::new(t._eq(t._var("six"), t._false())),
+    ]);
+    let clauses = vec![
+        clause1, clause2, clause3, clause4, clause5, clause6, clause7, clause8, clause9,
+    ];
+    let undecided = VecDeque::from(vec![
+        t._var("one"),
+        t._var("two"),
+        t._var("three"),
+        t._var("four"),
+        t._var("five"),
+        t._var("six"),
+    ]);
     Solver::new(Box::new(t), clauses, undecided)
 }
 
@@ -149,4 +214,14 @@ fn test_unsat_1() {
 #[test]
 fn test_unsat_2() {
     assert_eq!(example_solver_unsat_2().run(), false);
+}
+
+#[test]
+fn test_unsat_pigeonhole_1() {
+    assert_eq!(example_solver_pigeonhole_1().run(), false);
+}
+
+#[test]
+fn test_unsat_pigeonhole_2() {
+    assert_eq!(example_solver_pigeonhole_2().run(), false);
 }

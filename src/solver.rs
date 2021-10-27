@@ -306,6 +306,9 @@ impl Solver {
     }
 
     pub fn run(&mut self) -> bool {
+        debug!("INSTANCE TO SOLVE:");
+        print_vec(&self.clauses);
+
         let mut iteration_counter = 1;
         loop {
             assert!(self.trail.is_consistent());
