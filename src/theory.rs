@@ -45,20 +45,20 @@ impl BooleanTheory {
         BooleanTheory {}
     }
 
-    pub fn _true(&self) -> HConsed<Term> {
+    pub fn True(&self) -> HConsed<Term> {
         constant(Value::True)
     }
 
-    pub fn _false(&self) -> HConsed<Term> {
+    pub fn False(&self) -> HConsed<Term> {
         constant(Value::False)
     }
 
-    pub fn _eq(&self, lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Formula> {
+    pub fn Eq(&self, lhs: HConsed<Term>, rhs: HConsed<Term>) -> HConsed<Formula> {
         // predicate(MyPredicates::EQUAL, lhs, rhs)
         equal(lhs, rhs)
     }
 
-    pub fn _var(&self, id: &str) -> HConsed<Term> {
+    pub fn Var(&self, id: &str) -> HConsed<Term> {
         variable(id)
     }
 }
